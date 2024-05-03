@@ -26,25 +26,51 @@ template $StormWindow: Adw.ApplicationWindow {
       margin-end: 12;
       margin-top: 24;
       margin-start: 12;
-      maximum-size: 860;
 
       Box {
         orientation: vertical;
         spacing: 18;
 
+        Box {
+          orientation: vertical;
+
+          Picture picture_illustration {
+            can-shrink: true;
+            margin-bottom: 32;
+          }
+
+          Label {
+            label: _('Battleship');
+
+            styles [
+              "title-1",
+            ]
+          }
+        }
+
         ListBox {
           selection-mode: none;
 
-          Adw.EntryRow name {
+          Adw.EntryRow name_eow {
             title: 'Name';
           }
 
           $StormListRow options_row {
-            title: 'Options';
+            title: 'Settings';
           }
 
           styles [
             "boxed-list",
+          ]
+        }
+
+        Button play_button {
+          label: 'Start Game';
+          halign: center;
+
+          styles [
+            "suggested-action",
+            "pill",
           ]
         }
       }

@@ -23,9 +23,18 @@ namespace Storm {
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
         public unowned ListRow options_row;
+        [GtkChild]
+        public unowned Gtk.Picture picture_illustration;
 
         public Window (Gtk.Application app) {
             Object (application: app);
+        }
+
+        construct {
+            picture_illustration.set_resource ("io/github/Storm/welcome.svg");
+            options_row.activated.connect (() => {
+                print ("qwe\n");
+            });
         }
     }
 }
