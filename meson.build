@@ -12,7 +12,13 @@ project(
 i18n = import('i18n')
 gnome = import('gnome')
 
+gtk = dependency('gtk4', version: '>= 4.14')
+libadwaita = dependency('libadwaita-1', version: '>= 1.5')
 
+storm_deps = [
+  gtk,
+  libadwaita,
+]
 
 subdir('data')
 subdir('src')

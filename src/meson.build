@@ -1,20 +1,25 @@
-storm_sources = [
-  'main.vala',
-  'application.vala',
-  'window.vala',
-]
-
-storm_deps = [
-  dependency('gtk4'),
-  dependency('libadwaita-1', version: '>= 1.4'),
-]
-
-storm_sources += gnome.compile_resources('storm-resources',
-  'storm.gresource.xml',
-  c_name: 'storm'
+storm_sources = (
+  [blueprints, resources] + files(
+    'application.vala',
+    'main.vala',
+    'window.vala',
+  )
 )
 
-executable('storm', storm_sources,
+storm_vala_args = [
+  '--target-glib',
+  '2.76',
+  '--vapidir',
+  meson.current_source_dir(),
+  '--gresources',
+  resource_files,
+  '--gresourcesdir=data/',
+]
+
+executable(
+  'storm',
+  storm_sources,
+  vala_args: storm_vala_args,
   dependencies: storm_deps,
-       install: true,
+  install: true,
 )

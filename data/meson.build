@@ -32,15 +32,34 @@ install_data(
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas',
 )
 
-compile_schemas = find_program(
-  'glib-compile-schemas',
-  required: false,
-  disabler: true,
+compile_schemas = find_program('glib-compile-schemas', required: false)
+if compile_schemas.found()
+  test(
+    'Validate schema file',
+    compile_schemas,
+    args: ['--strict', '--dry-run', meson.current_source_dir()],
+  )
+endif
+
+blueprints = custom_target(
+  'blueprints',
+  input: files('gtk/help-overlay.blp', 'ui/window.blp'),
+  output: '.',
+  command: [
+    find_program('blueprint-compiler'),
+    'batch-compile',
+    '@OUTPUT@',
+    '@CURRENT_SOURCE_DIR@',
+    '@INPUT@',
+  ],
 )
-test(
-  'Validate schema file',
-  compile_schemas,
-  args: ['--strict', '--dry-run', meson.current_source_dir()],
+
+resource_files = files('io.github.Storm.gresource.xml')
+resources = gnome.compile_resources(
+  'storm-resources',
+  resource_files,
+  dependencies: blueprints,
+  c_name: 'storm',
 )
 
 subdir('icons')
