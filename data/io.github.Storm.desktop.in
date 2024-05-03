@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=storm
+Exec=storm
+Icon=io.github.Storm
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

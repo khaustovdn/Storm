@@ -1,0 +1,6 @@
+data/io.github.Storm.desktop.in
+data/io.github.Storm.metainfo.xml.in
+data/io.github.Storm.gschema.xml
+src/main.vala
+src/window.vala
+src/window.ui
