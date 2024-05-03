@@ -43,7 +43,7 @@ endif
 
 blueprints = custom_target(
   'blueprints',
-  input: files('gtk/help-overlay.blp', 'ui/window.blp'),
+  input: files('gtk/help-overlay.blp', 'ui/list-row.blp', 'ui/window.blp'),
   output: '.',
   command: [
     find_program('blueprint-compiler'),

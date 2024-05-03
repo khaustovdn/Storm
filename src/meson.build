@@ -1,6 +1,7 @@
 storm_sources = (
   [blueprints, resources] + files(
     'application.vala',
+    'list-row.vala',
     'main.vala',
     'window.vala',
   )

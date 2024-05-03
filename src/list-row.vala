@@ -1,4 +1,4 @@
-/* window.vala
+/* list-row.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,13 +19,13 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
-    public class Window : Adw.ApplicationWindow {
-        [GtkChild]
-        public unowned ListRow options_row;
+  [GtkTemplate (ui = "/io/github/Storm/ui/list-row.ui")]
+  public class ListRow : Adw.ActionRow {
+    [GtkChild]
+    public unowned Gtk.Image arrow;
 
-        public Window (Gtk.Application app) {
-            Object (application: app);
-        }
+    public ListRow () {
+      Object ();
     }
+  }
 }
