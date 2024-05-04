@@ -25,6 +25,10 @@ namespace Storm {
         public unowned ListRow options_row;
         [GtkChild]
         public unowned Gtk.Picture picture_illustration;
+        [GtkChild]
+        public unowned Gtk.Button start_button;
+        [GtkChild]
+        public unowned Gtk.ListBox main_listbox;
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -32,8 +36,9 @@ namespace Storm {
 
         construct {
             picture_illustration.set_resource ("io/github/Storm/welcome.svg");
+
             options_row.activated.connect (() => {
-                print ("qwe\n");
+                print ("qwe %d, %d\n", this.get_width (), this.get_height ());
             });
         }
     }

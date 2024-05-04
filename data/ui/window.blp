@@ -7,6 +7,13 @@ template $StormWindow: Adw.ApplicationWindow {
   width-request: 360;
   height-request: 294;
 
+  Adw.Breakpoint {
+    condition ("max-height: 480px")
+    setters {
+      picture_illustration.visible: false;
+    }
+  }
+
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
@@ -21,57 +28,58 @@ template $StormWindow: Adw.ApplicationWindow {
       };
     }
 
-    content: Adw.Clamp {
-      margin-bottom: 12;
-      margin-end: 12;
-      margin-top: 24;
-      margin-start: 12;
-
-      Box {
-        orientation: vertical;
-        spacing: 18;
+    content: ScrolledWindow {
+      Adw.Clamp {
+        margin-bottom: 12;
+        margin-end: 12;
+        margin-top: 12;
+        margin-start: 12;
 
         Box {
           orientation: vertical;
+          spacing: 18;
 
-          Picture picture_illustration {
-            can-shrink: true;
-            margin-bottom: 32;
+          Box {
+            orientation: vertical;
+
+            Picture picture_illustration {
+              margin-bottom: 32;
+            }
+
+            Label {
+              label: _('Battleship');
+
+              styles [
+                "title-1",
+              ]
+            }
           }
 
-          Label {
-            label: _('Battleship');
+          ListBox main_listbox {
+            selection-mode: none;
+
+            Adw.EntryRow name_row {
+              title: 'Name';
+            }
+
+            $StormListRow options_row {
+              title: 'Settings';
+            }
 
             styles [
-              "title-1",
+              "boxed-list",
             ]
           }
-        }
 
-        ListBox {
-          selection-mode: none;
+          Button start_button {
+            label: 'Start Game';
+            halign: center;
 
-          Adw.EntryRow name_eow {
-            title: 'Name';
+            styles [
+              "suggested-action",
+              "pill",
+            ]
           }
-
-          $StormListRow options_row {
-            title: 'Settings';
-          }
-
-          styles [
-            "boxed-list",
-          ]
-        }
-
-        Button play_button {
-          label: 'Start Game';
-          halign: center;
-
-          styles [
-            "suggested-action",
-            "pill",
-          ]
         }
       }
     };
