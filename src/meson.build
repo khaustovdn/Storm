@@ -1,6 +1,7 @@
 storm_sources = (
   [blueprints, resources] + files(
     'application.vala',
+    'game-board.vala',
     'game-page.vala',
     'game-setup-page.vala',
     'list-row.vala',
@@ -24,5 +25,6 @@ executable(
   storm_sources,
   vala_args: storm_vala_args,
   dependencies: storm_deps,
+  link_args: ['-lm'],
   install: true,
 )

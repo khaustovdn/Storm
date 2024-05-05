@@ -16,29 +16,9 @@ template $StormGamePage: Adw.NavigationPage {
         margin-top: 24;
         margin-start: 12;
 
-        Box game_board {
+        Box field {
           orientation: vertical;
           spacing: 32;
-
-          Frame {
-            halign: center;
-            valign: center;
-
-            DrawingArea {
-              content-width: 294;
-              content-height: 294;
-            }
-          }
-
-          Frame {
-            halign: center;
-            valign: center;
-
-            DrawingArea {
-              content-width: 294;
-              content-height: 294;
-            }
-          }
         }
       }
     };

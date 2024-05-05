@@ -15,8 +15,9 @@ gnome = import('gnome')
 gtk = dependency('gtk4', version: '>= 4.14')
 libadwaita = dependency('libadwaita-1', version: '>= 1.5')
 gio = dependency('gio-2.0', version: '>= 2.72')
+gee = dependency('gee-0.8')
 
-storm_deps = [gtk, libadwaita, gio]
+storm_deps = [gtk, libadwaita, gio, gee]
 
 subdir('data')
 subdir('src')
