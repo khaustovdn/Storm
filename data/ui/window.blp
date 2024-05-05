@@ -15,9 +15,10 @@ template $StormWindow: Adw.ApplicationWindow {
     }
   }
 
-  Adw.NavigationView nav_view {
+  Adw.NavigationView {
     Adw.NavigationPage {
       title: _("Menu");
+      tag: 'menu-page';
 
       Adw.ToolbarView {
         [top]
@@ -81,7 +82,7 @@ template $StormWindow: Adw.ApplicationWindow {
                 label: _('Start Game');
                 halign: center;
                 valign: center;
-                action-target: '\'game-page\'';
+                action-target: '\'game-setup-page\'';
                 action-name: 'navigation.push';
 
                 styles [
@@ -95,7 +96,7 @@ template $StormWindow: Adw.ApplicationWindow {
       }
     }
 
-    $StormGamePage game_page {}
+    $StormGameSetupPage game_setup_page {}
   }
 }
 

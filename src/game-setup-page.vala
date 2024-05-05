@@ -1,4 +1,4 @@
-/* window.vala
+/* game-setup-page.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,23 +19,10 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
-    public class Window : Adw.ApplicationWindow {
-        [GtkChild]
-        public unowned ListRow options_row;
-        [GtkChild]
-        public unowned Gtk.Button start_button;
-        [GtkChild]
-        public unowned GameSetupPage game_setup_page;
-
-        public Window (Gtk.Application app) {
-            Object (application: app);
-        }
-
-        construct {
-            this.options_row.activated.connect (() => {
-                print ("%d, %d\n", this.get_width (), this.get_height ());
-            });
-        }
+  [GtkTemplate (ui = "/io/github/Storm/ui/game-setup-page.ui")]
+  public class GameSetupPage : Adw.NavigationPage {
+    public GameSetupPage () {
+      Object ();
     }
+  }
 }

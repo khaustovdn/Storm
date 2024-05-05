@@ -1,0 +1,12 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $StormGameSetupPage: Adw.NavigationPage {
+  title: _('Game Setup');
+  tag: 'game-setup-page';
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {}
+  };
+}
