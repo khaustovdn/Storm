@@ -7,17 +7,9 @@ template $StormWindow: Adw.ApplicationWindow {
   width-request: 360;
   height-request: 294;
 
-  Adw.Breakpoint {
-    condition ("max-height: 480px")
-
-    setters {
-      illustration.visible: false;
-    }
-  }
-
   Adw.NavigationView {
     Adw.NavigationPage {
-      title: _("Menu");
+      title: _('Menu');
       tag: 'menu-page';
 
       Adw.ToolbarView {
@@ -82,7 +74,7 @@ template $StormWindow: Adw.ApplicationWindow {
                 label: _('Start Game');
                 halign: center;
                 valign: center;
-                action-target: '\'game-setup-page\'';
+                action-target: '\'game-page\'';
                 action-name: 'navigation.push';
 
                 styles [
@@ -96,7 +88,15 @@ template $StormWindow: Adw.ApplicationWindow {
       }
     }
 
-    $StormGameSetupPage game_setup_page {}
+    $StormGamePage game_setup_page {}
+  }
+
+  Adw.Breakpoint breakpoint {
+    condition ("max-height: 480px")
+
+    setters {
+      illustration.visible: false;
+    }
   }
 }
 

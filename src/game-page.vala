@@ -21,6 +21,9 @@
 namespace Storm {
   [GtkTemplate (ui = "/io/github/Storm/ui/game-page.ui")]
   public class GamePage : Adw.NavigationPage {
+    [GtkChild]
+    public unowned Gtk.Box game_board;
+
     public GamePage () {
       Object ();
     }
