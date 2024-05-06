@@ -34,6 +34,19 @@ namespace Storm {
 
         private void draw (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {
             this.draw_grid (drawing_area, cairo, width, height);
+            this.draw_values (drawing_area, cairo, width, height);
+        }
+
+        private void draw_values (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {
+            cairo.set_font_size (12);
+            for (double i = width / 11, j = height / 11, value = 1; i < width || j < height; i += (width + (width % 11) / 2) / 11, j += (height + (height % 11) / 2) / 11, value++) {
+                cairo.move_to (i + (width / (double) 22) - (width % 11) / 2, (height / (double) 22) + (height % 11) / 2);
+                cairo.show_text (((int) value - 1 + 'a').to_string ("%c"));
+                cairo.stroke ();
+                cairo.move_to ((width / (double) 22) - (width % 11) / 2, j + (height / (double) 22) + (height % 11) / 2);
+                cairo.show_text (value.to_string ());
+                cairo.stroke ();
+            }
         }
 
         private void draw_grid (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {
