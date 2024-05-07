@@ -1,22 +1,21 @@
 storm_sources = (
-  [blueprints, resources] + files(
+  [blueprints, resources]
+  + files(
     'application.vala',
     'game-board.vala',
     'game-page.vala',
     'game-setup-page.vala',
     'list-row.vala',
     'main.vala',
+    'player.vala',
     'window.vala',
   )
 )
 
 storm_vala_args = [
-  '--target-glib',
-  '2.76',
-  '--vapidir',
-  meson.current_source_dir(),
-  '--gresources',
-  resource_files,
+  '--target-glib', '2.76',
+  '--vapidir', meson.current_source_dir(),
+  '--gresources', resource_files,
   '--gresourcesdir=data/',
 ]
 

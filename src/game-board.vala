@@ -32,6 +32,14 @@ namespace Storm {
 
         construct {
             this.board.set_draw_func (this.draw);
+
+            Gtk.GestureClick click = new Gtk.GestureClick ();
+            click.pressed.connect (click_handler);
+            this.board.add_controller (click);
+        }
+
+        private void click_handler (int n_press, double x, double y) {
+            
         }
 
         private void draw (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {

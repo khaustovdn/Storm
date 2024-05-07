@@ -1,4 +1,4 @@
-/* game-setup-page.vala
+/* player.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -18,26 +18,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Storm {
-  [GtkTemplate (ui = "/io/github/Storm/ui/game-setup-page.ui")]
-  public class GameSetupPage : Adw.NavigationPage {
-    [GtkChild]
-    public unowned GameBoard board;
-    [GtkChild]
-    public unowned GamePage game_page;
-    [GtkChild]
-    public unowned Gtk.Button random_button;
-
-    public Adw.Breakpoint breakpoint { get; construct; }
-    public Player player { get; construct; }
-
-    public GameSetupPage () {
-      Object ();
+ namespace Storm {
+    public class Player : Object {
+        public Player () {
+            Object();
+        }
     }
-
-    construct {
-      this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 680px")));
-      this.breakpoint.add_setter (game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
-    }
-  }
 }
