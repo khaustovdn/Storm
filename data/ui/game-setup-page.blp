@@ -2,11 +2,56 @@ using Gtk 4.0;
 using Adw 1;
 
 template $StormGameSetupPage: Adw.NavigationPage {
-  title: _('Game Setup');
   tag: 'game-setup-page';
 
-  child: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {}
-  };
+  Adw.NavigationView navigation_view {
+    Adw.NavigationPage {
+      title: _('Game Setup');
+      Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          show-end-title-buttons: false;
+
+          [end]
+          Button apply_button {
+            label: _('Apply');
+            action-target: '\'game-page\'';
+            action-name: 'navigation.push';
+
+            styles [
+              "suggested-action",
+            ]
+          }
+        }
+
+        content: ScrolledWindow {
+          Adw.Clamp {
+            margin-bottom: 24;
+            margin-end: 12;
+            margin-top: 24;
+            margin-start: 12;
+
+            Box {
+              orientation: vertical;
+              spacing: 18;
+
+              $StormGameBoard board {}
+
+              Button random_button {
+                label: _('Random Board');
+                halign: center;
+                valign: center;
+
+                styles [
+                  "pill",
+                ]
+              }
+            }
+          }
+        };
+      }
+    }
+
+    $StormGamePage game_page {}
+  }
 }

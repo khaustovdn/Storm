@@ -21,8 +21,20 @@
 namespace Storm {
   [GtkTemplate (ui = "/io/github/Storm/ui/game-setup-page.ui")]
   public class GameSetupPage : Adw.NavigationPage {
+    [GtkChild]
+    public unowned GameBoard board;
+    [GtkChild]
+    public unowned GamePage game_page;
+
+    public Adw.Breakpoint breakpoint { get; construct; }
+
     public GameSetupPage () {
       Object ();
+    }
+
+    construct {
+      this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 680px")));
+      this.breakpoint.add_setter (game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
     }
   }
 }

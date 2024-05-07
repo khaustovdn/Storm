@@ -26,16 +26,14 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Button start_button;
         [GtkChild]
-        public unowned GamePage game_setup_page;
+        public unowned GameSetupPage game_setup_page;
 
         public Window (Gtk.Application app) {
             Object (application: app);
         }
 
         construct {
-            Adw.Breakpoint breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 680px")));
-            breakpoint.add_setter (game_setup_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
-            this.add_breakpoint (breakpoint);
+            this.add_breakpoint (game_setup_page.breakpoint);
 
             this.options_row.activated.connect (() => {
                 print ("%d, %d\n", this.get_width (), this.get_height ());

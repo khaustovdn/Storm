@@ -24,19 +24,8 @@ namespace Storm {
     [GtkChild]
     public unowned Gtk.Box field;
 
-    public GameBoard player_board { get; construct; }
-    public GameBoard opponent_board { get; construct; }
-
     public GamePage () {
       Object ();
-    }
-
-    construct {
-      this.player_board = new GameBoard ();
-      this.opponent_board = new GameBoard ();
-
-      this.field.append (this.player_board);
-      this.field.append (this.opponent_board);
     }
   }
 }

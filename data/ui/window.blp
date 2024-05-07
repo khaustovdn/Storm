@@ -74,7 +74,7 @@ template $StormWindow: Adw.ApplicationWindow {
                 label: _('Start Game');
                 halign: center;
                 valign: center;
-                action-target: '\'game-page\'';
+                action-target: '\'game-setup-page\'';
                 action-name: 'navigation.push';
 
                 styles [
@@ -88,7 +88,7 @@ template $StormWindow: Adw.ApplicationWindow {
       }
     }
 
-    $StormGamePage game_setup_page {}
+    $StormGameSetupPage game_setup_page {}
   }
 
   Adw.Breakpoint breakpoint {

@@ -24,6 +24,8 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.DrawingArea board;
 
+        private int line_count { get; default = 11; }
+
         public GameBoard () {
             Object ();
         }
@@ -39,23 +41,25 @@ namespace Storm {
 
         private void draw_values (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {
             cairo.set_font_size (12);
-            for (double i = width / 11, j = height / 11, value = 1; i < width || j < height; i += (width + (width % 11) / 2) / 11, j += (height + (height % 11) / 2) / 11, value++) {
-                cairo.move_to (i + (width / (double) 22) - (width % 11) / 2, (height / (double) 22) + (height % 11) / 2);
-                cairo.show_text (((int) value - 1 + 'a').to_string ("%c"));
-                cairo.stroke ();
-                cairo.move_to ((width / (double) 22) - (width % 11) / 2, j + (height / (double) 22) + (height % 11) / 2);
-                cairo.show_text (value.to_string ());
-                cairo.stroke ();
+            cairo.set_source_rgba (0.5, 0.5, 0.5, 1.0);
+
+
+            for (int i = 1; i < this.line_count; i++) {
+                cairo.move_to (width * i / this.line_count + width / (this.line_count * 2) - (width % this.line_count) / 2, height / (this.line_count * 2) + (height % this.line_count) / 2);
+                cairo.show_text (((int) i - 1 + 'a').to_string ("%c"));
+                cairo.move_to (width / (this.line_count * 2) - (width % this.line_count) / 2 - (i.to_string ().length - 1) * 4, height * i / this.line_count + height / (this.line_count * 2) + (height % this.line_count) / 2);
+                cairo.show_text (i.to_string ());
             }
         }
 
         private void draw_grid (Gtk.DrawingArea drawing_area, Cairo.Context cairo, int width, int height) {
             cairo.set_line_width (0.2);
-            for (double i = width / 11, j = height / 11; i < width || j < height; i += (width + (width % 11) / 2) / 11, j += (height + (height % 11) / 2) / 11) {
-                cairo.move_to (i, 0);
-                cairo.line_to (i, height);
-                cairo.move_to (0, i);
-                cairo.line_to (width, i);
+            cairo.set_source_rgba (0.5, 0.5, 0.5, 1.0);
+            for (int i = 0; i < this.line_count; i++) {
+                cairo.move_to (width * i / this.line_count, 0);
+                cairo.line_to (width * i / this.line_count, this.board.content_height);
+                cairo.move_to (0, height * i / this.line_count);
+                cairo.line_to (width, height * i / this.line_count);
             }
             cairo.stroke ();
         }
