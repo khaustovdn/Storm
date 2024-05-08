@@ -1,4 +1,4 @@
-/* game-board.vala
+/* point.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,13 +19,11 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/game-board.ui")]
-    public class GameBoard : Gtk.Frame {
-        [GtkChild]
-        public unowned Grid board;
-
-        public GameBoard () {
-            Object ();
+    public class Point : Object {
+        public double x { get; construct; }
+        public double y { get; construct; }
+        public Point (double x, double y) {
+            Object (x: x, y: y);
         }
     }
 }

@@ -18,10 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
- namespace Storm {
+namespace Storm {
     public class Player : Object {
+        public Gee.ArrayList<Point> ships { get; set; }
+
         public Player () {
-            Object();
+            Object ();
         }
     }
 }

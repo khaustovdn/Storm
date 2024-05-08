@@ -5,8 +5,9 @@ template $StormGameBoard: Gtk.Frame {
   halign: center;
   valign: center;
 
-  DrawingArea board {
+  $StormGrid board {
     content-width: 294;
     content-height: 294;
+    line-count: 11;
   }
 }
