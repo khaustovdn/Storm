@@ -36,7 +36,7 @@ namespace Storm {
     }
 
     construct {
-      this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 680px")));
+      this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 860px")));
       this.breakpoint.add_setter (game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
     }
   }

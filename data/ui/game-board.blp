@@ -1,13 +1,8 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $StormGameBoard: Gtk.Frame {
-  halign: center;
-  valign: center;
-
+template $StormGameBoard: Frame {
   $StormGrid board {
-    content-width: 294;
-    content-height: 294;
-    line-count: 11;
+    line-count: 10;
   }
 }

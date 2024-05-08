@@ -1,4 +1,4 @@
-/* grid.vala
+/* cell.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,24 +19,18 @@
  */
 
 namespace Storm {
-    public class Grid : Gtk.Grid {
-        public int line_count { get; construct; default = 1; }
+    [GtkTemplate (ui = "/io/github/Storm/ui/cell.ui")]
+    public class Cell : Gtk.Frame {
+        public int row { get; construct; }
+        public int column { get; construct; }
 
-        public Grid () {
-            Object ();
+        public Cell (int row, int column) {
+            Object (row: row, column: column);
         }
 
         construct {
-            this.set_up ();
-        }
-
-        private void set_up () {
-            for (int i = 0; i < line_count; i++) {
-                for (int j = 0; j < line_count; j++) {
-                    Cell cell = new Cell (i, j);
-                    this.attach (cell, i, j, 1, 1);
-                }
-            }
+            this.set_name ("cell" + row.to_string () + column.to_string ());
+            this.add_css_class ("cell");
         }
     }
 }

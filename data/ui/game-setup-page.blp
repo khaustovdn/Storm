@@ -7,6 +7,7 @@ template $StormGameSetupPage: Adw.NavigationPage {
   Adw.NavigationView navigation_view {
     Adw.NavigationPage {
       title: _('Game Setup');
+
       Adw.ToolbarView {
         [top]
         Adw.HeaderBar {
@@ -30,17 +31,18 @@ template $StormGameSetupPage: Adw.NavigationPage {
             margin-end: 12;
             margin-top: 24;
             margin-start: 12;
+            maximum-size: 860;
 
             Box {
               orientation: vertical;
               spacing: 18;
+              halign: center;
+              valign: center;
 
               $StormGameBoard board {}
 
               Button random_button {
                 label: _('Random Board');
-                halign: center;
-                valign: center;
 
                 styles [
                   "pill",
