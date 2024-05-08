@@ -23,6 +23,10 @@ namespace Storm {
   public class GamePage : Adw.NavigationPage {
     [GtkChild]
     public unowned Gtk.Box field;
+    [GtkChild]
+    public unowned GameBoard player_board;
+
+    public Player player { get; set; }
 
     public GamePage () {
       Object ();

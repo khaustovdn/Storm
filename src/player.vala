@@ -20,10 +20,17 @@
 
 namespace Storm {
     public class Player : Object {
-        public Gee.ArrayList<Point> ships { get; set; }
+        public Gee.ArrayList<Point> ships { get; default = new Gee.ArrayList<Point> (); }
 
         public Player () {
             Object ();
+        }
+
+        construct {
+            Rand rand = new Rand ();
+            for (int i = 0; i < 10; i++) {
+                ships.add (new Point (i, (int) rand.int_range (0, 10)));
+            }
         }
     }
 }

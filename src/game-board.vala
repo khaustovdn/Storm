@@ -22,10 +22,14 @@ namespace Storm {
     [GtkTemplate (ui = "/io/github/Storm/ui/game-board.ui")]
     public class GameBoard : Gtk.Frame {
         [GtkChild]
-        public unowned Grid board;
+        private unowned Grid grid;
 
         public GameBoard () {
             Object ();
+        }
+
+        public Gtk.Widget? get_element (int column, int row) {
+            return grid.get_child_at (column, row);
         }
     }
 }
