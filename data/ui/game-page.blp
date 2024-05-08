@@ -5,7 +5,7 @@ template $StormGamePage: Adw.NavigationPage {
   title: _('Game');
   tag: 'game-page';
 
-  child: Adw.ToolbarView toolbar {
+  child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {}
 
@@ -23,9 +23,17 @@ template $StormGamePage: Adw.NavigationPage {
           valign: center;
           halign: center;
 
-          $StormGameBoard player_board {}
+          Frame {
+            $StormGameBoard player_board {
+              line-count: 10;
+            }
+          }
 
-          $StormGameBoard opponent_board {}
+          Frame {
+            $StormGameBoard opponent_board {
+              line-count: 10;
+            }
+          }
         }
       }
     };

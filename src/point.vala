@@ -22,6 +22,7 @@ namespace Storm {
     public class Point : Object {
         public int x { get; construct; }
         public int y { get; construct; }
+
         public Point (int x, int y) {
             Object (x: x, y: y);
         }

@@ -25,11 +25,19 @@ namespace Storm {
     public unowned Gtk.Box field;
     [GtkChild]
     public unowned GameBoard player_board;
+    [GtkChild]
+    public unowned GameBoard opponent_board;
 
     public Player player { get; set; }
 
-    public GamePage () {
-      Object ();
+    public GamePage (Player player) {
+      Object (player: player);
+    }
+
+    public void show_ships () {
+      foreach (var item in player.ships) {
+        this.player_board.get_child_at (item.x, item.y).add_css_class ("ship");
+      }
     }
   }
 }

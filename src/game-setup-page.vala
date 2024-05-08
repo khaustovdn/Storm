@@ -24,33 +24,41 @@ namespace Storm {
     [GtkChild]
     public unowned GameBoard board;
     [GtkChild]
-    public unowned GamePage game_page;
+    public unowned Adw.NavigationView navigation_view;
     [GtkChild]
     public unowned Gtk.Button random_button;
     [GtkChild]
     public unowned Gtk.Button apply_button;
 
+    public Player player { get; default = new Player (); }
+    public GamePage game_page { get; construct; }
     public Adw.Breakpoint breakpoint { get; construct; }
-    Player player = new Player ();
 
     public GameSetupPage () {
       Object ();
     }
 
     construct {
-      this.random_button.clicked.connect (() => {
-        foreach (var item in player.ships) {
-          board.get_element (item.x, item.y).add_css_class ("ship");
-        }
-      });
-      apply_button.clicked.connect (() => {
-        game_page.player = player;
-        foreach (var item in game_page.player.ships) {
-          game_page.player_board.get_element (item.x, item.y).add_css_class ("ship");
-        }
-      });
+      this.game_page = new GamePage (player);
+      this.navigation_view.add (this.game_page);
       this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 860px")));
-      this.breakpoint.add_setter (game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
+      this.breakpoint.add_setter (this.game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
+
+      this.random_button.clicked.connect (() => {
+        this.player.random_set ();
+        this.show_ships ();
+      });
+
+      this.apply_button.clicked.connect (() => {
+
+        this.game_page.show_ships ();
+      });
+    }
+
+    public void show_ships () {
+      foreach (var item in player.ships) {
+        this.board.get_child_at (item.x, item.y).add_css_class ("ship");
+      }
     }
   }
 }

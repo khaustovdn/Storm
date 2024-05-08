@@ -19,17 +19,17 @@
  */
 
 namespace Storm {
-    public class Player : Object {
+    public class Player : Gtk.Widget {
         public Gee.ArrayList<Point> ships { get; default = new Gee.ArrayList<Point> (); }
 
         public Player () {
             Object ();
         }
 
-        construct {
+        public void random_set () {
             Rand rand = new Rand ();
             for (int i = 0; i < 10; i++) {
-                ships.add (new Point (i, (int) rand.int_range (0, 10)));
+                this.ships.add (new Point (i, (int) rand.int_range (0, 10)));
             }
         }
     }

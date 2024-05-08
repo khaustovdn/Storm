@@ -19,17 +19,24 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/game-board.ui")]
-    public class GameBoard : Gtk.Frame {
-        [GtkChild]
-        private unowned Grid grid;
+    public class GameBoard : Gtk.Grid  {
+        public int line_count { get; construct; }
 
-        public GameBoard () {
-            Object ();
+        public GameBoard (int line_count) {
+            Object (line_count: line_count);
         }
 
-        public Gtk.Widget? get_element (int column, int row) {
-            return grid.get_child_at (column, row);
+        construct {
+            this.setup ();
+        }
+
+        private void setup () {
+            for (int i = 0; i < this.line_count; i++) {
+                for (int j = 0; j < this.line_count; j++) {
+                    Cell cell = new Cell (i, j);
+                    this.attach (cell, i, j, 1, 1);
+                }
+            }
         }
     }
 }

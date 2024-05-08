@@ -39,7 +39,11 @@ template $StormGameSetupPage: Adw.NavigationPage {
               halign: center;
               valign: center;
 
-              $StormGameBoard board {}
+              Frame {
+                $StormGameBoard board {
+                  line-count: 10;
+                }
+              }
 
               Button random_button {
                 label: _('Random Board');
@@ -53,7 +57,5 @@ template $StormGameSetupPage: Adw.NavigationPage {
         };
       }
     }
-
-    $StormGamePage game_page {}
   }
 }

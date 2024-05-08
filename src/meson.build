@@ -6,7 +6,6 @@ storm_sources = (
     'game-board.vala',
     'game-page.vala',
     'game-setup-page.vala',
-    'grid.vala',
     'list-row.vala',
     'main.vala',
     'player.vala',
