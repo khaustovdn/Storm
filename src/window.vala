@@ -22,7 +22,7 @@ namespace Storm {
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
-        public unowned ListRow options_row;
+        public unowned ListRow settings_row;
         [GtkChild]
         public unowned Gtk.Button start_button;
         [GtkChild]
@@ -35,9 +35,38 @@ namespace Storm {
         construct {
             this.add_breakpoint (game_setup_page.breakpoint);
 
-            this.options_row.activated.connect (() => {
+            this.settings_row.activated.connect (() => {
                 print ("%d, %d\n", this.get_width (), this.get_height ());
             });
+
+            start_button.clicked.connect (() => {
+                try {
+                    SocketService service = new SocketService ();
+                    service.add_inet_port (3333, null);
+                    service.incoming.connect (on_incoming_connection);
+                    service.start ();
+                } catch (Error e) {
+                    printerr ("%s\n", e.message);
+                }
+            });
+        }
+
+        private bool on_incoming_connection (SocketConnection connection, Object? source_object) {
+            print ("Got incoming connection\n");
+            process_request.begin (connection);
+            return true;
+        }
+
+        private async void process_request (SocketConnection connection) {
+            try {
+                DataInputStream input_stream = new DataInputStream (connection.input_stream);
+                DataOutputStream output_stream = new DataOutputStream (connection.output_stream);
+                string request = yield input_stream.read_line_async (Priority.HIGH_IDLE);
+
+                output_stream.put_string ("Got: %s\n".printf (request));
+            } catch (Error e) {
+                printerr ("%s\n", e.message);
+            }
         }
     }
 }
