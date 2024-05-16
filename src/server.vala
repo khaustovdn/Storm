@@ -20,23 +20,24 @@
 
 namespace Storm {
     public class Server : Object {
+        private MainLoop loop { get; default = new MainLoop (); }
         private SocketService service { get; default = new SocketService (); }
-        public ClientHandler[] players { get; default = new ClientHandler[2]; }
+        public ClientHandler ? [] players { get; default = new ClientHandler ? [2]; }
         public uint16 port { get; construct; }
 
         public Server (uint16 port) {
-            Object (port: port);
+            Object (port : port);
         }
 
-        private bool on_incoming_connection (SocketConnection connection) {
-            message ("Got incoming connection\n");
-            foreach (var player in this.players) {
-                if (player == null) {
-                    player = new ClientHandler (connection);
-                    player.start ();
-                }
-            }
+        private bool on_incoming_connection (SocketConnection socket) {
+            stdout.printf ("Got incoming connection\n");
+            // Process the request asynchronously
+            process_request.begin (socket);
             return true;
+        }
+
+        private async void process_request (SocketConnection socket) {
+            new ClientHandler (this, socket);
         }
 
         public void start () {
@@ -44,9 +45,39 @@ namespace Storm {
                 this.service.add_inet_port (this.port, null);
                 this.service.incoming.connect (this.on_incoming_connection);
                 this.service.start ();
-                new MainLoop ().run ();
+                this.loop.run ();
             } catch (Error e) {
                 warning (e.message);
+            }
+        }
+
+        public void close () {
+            this.service.close ();
+            this.loop.quit ();
+        }
+
+        public void broadcast (ClientHandler client, string value) {
+            foreach (var player in this.players) {
+                if (player != null && player != client) {
+                    player.send (value);
+                }
+            }
+        }
+
+        public void remove_client (ClientHandler client) {
+            foreach (var player in this.players) {
+                if (player != null && player == client) {
+                    player.close ();
+                    player = null;
+                }
+            }
+        }
+
+        public void add_client (ClientHandler client) {
+            foreach (var player in this.players) {
+                if (player == null) {
+                    player = client;
+                }
             }
         }
     }

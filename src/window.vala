@@ -19,10 +19,12 @@
  */
 
 namespace Storm {
-    const uint16 PORT = 3333;
+    const uint16 PORT = 8080;
 
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
+        [GtkChild]
+        public unowned Adw.NavigationView navigation_view;
         [GtkChild]
         public unowned ListRow settings_row;
         [GtkChild]
@@ -42,6 +44,8 @@ namespace Storm {
             this.settings_row.activated.connect (() => {
                 print ("%d, %d\n", this.get_width (), this.get_height ());
             });
+
+            this.navigation_view.popped.connect (this.server.close);
 
             this.start_button.clicked.connect (this.server.start);
         }

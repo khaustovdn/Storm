@@ -20,23 +20,48 @@
 
 namespace Storm {
     public class ClientHandler : Object {
+        public Server server { private get; construct; }
         public SocketConnection socket { private get; construct; }
         public DataInputStream in { private get; construct; }
         public DataOutputStream out { private get; construct; }
 
-        public ClientHandler (SocketConnection socket) {
-            Object (socket: socket);
+        public ClientHandler (Server server, SocketConnection socket) {
+            Object (server: server, socket: socket);
         }
 
         construct {
             this.in = new DataInputStream (this.socket.input_stream);
             this.out = new DataOutputStream (this.socket.output_stream);
+            new Thread<void> ("socket-thread", () => {
+                try {
+                    while (true) {
+                        string msg = this.in.read_line ();
+                        if (msg == null)break;
+                        this.server.broadcast (this, msg);
+                    }
+                } catch (Error e) {
+                    warning (e.message);
+                } finally {
+                    this.server.remove_client (this);
+                }
+            });
         }
 
         public void start () {
+        }
+
+        public void send (string value) {
             try {
-                new Thread<void> ("socket-thread", () => {
-                });
+                this.out.write (@"$(value)\n".data);
+                this.out.flush ();
+            } catch (Error e) {
+                warning (e.message);
+            }
+        }
+
+        public void close () {
+            try {
+                this.socket.close ();
             } catch (Error e) {
                 warning (e.message);
             }
