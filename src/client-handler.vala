@@ -1,4 +1,4 @@
-/* window.vala
+/* client-handler.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,31 +19,27 @@
  */
 
 namespace Storm {
-    const uint16 PORT = 3333;
+    public class ClientHandler : Object {
+        public SocketConnection socket { private get; construct; }
+        public DataInputStream in { private get; construct; }
+        public DataOutputStream out { private get; construct; }
 
-    [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
-    public class Window : Adw.ApplicationWindow {
-        [GtkChild]
-        public unowned ListRow settings_row;
-        [GtkChild]
-        public unowned Gtk.Button start_button;
-        [GtkChild]
-        public unowned GameSetupPage game_setup_page;
-
-        public Server server { get; default = new Server (PORT); }
-
-        public Window (Gtk.Application app) {
-            Object (application: app);
+        public ClientHandler (SocketConnection socket) {
+            Object (socket: socket);
         }
 
         construct {
-            this.add_breakpoint (this.game_setup_page.breakpoint);
+            this.in = new DataInputStream (this.socket.input_stream);
+            this.out = new DataOutputStream (this.socket.output_stream);
+        }
 
-            this.settings_row.activated.connect (() => {
-                print ("%d, %d\n", this.get_width (), this.get_height ());
-            });
-
-            this.start_button.clicked.connect (this.server.start);
+        public void start () {
+            try {
+                new Thread<void> ("socket-thread", () => {
+                });
+            } catch (Error e) {
+                warning (e.message);
+            }
         }
     }
 }

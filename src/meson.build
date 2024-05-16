@@ -3,6 +3,7 @@ storm_sources = (
   + files(
     'application.vala',
     'cell.vala',
+    'client-handler.vala',
     'game-board.vala',
     'game-page.vala',
     'game-setup-page.vala',
@@ -10,6 +11,7 @@ storm_sources = (
     'main.vala',
     'player.vala',
     'point.vala',
+    'server.vala',
     'window.vala',
   )
 )
