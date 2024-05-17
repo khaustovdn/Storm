@@ -19,7 +19,12 @@
  */
 
 namespace Storm {
-    const uint16 PORT = 8080;
+    private const uint16 PORT = 8080;
+
+    private enum ConnectionType {
+        CREATE,
+        JOIN
+    }
 
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
@@ -31,9 +36,8 @@ namespace Storm {
         public unowned Gtk.Button start_button;
         [GtkChild]
         public unowned GameSetupPage game_setup_page;
-
-        public Server server { get; set; }
-        private Thread<void> thread { get; set; }
+        [GtkChild]
+        public unowned Adw.ComboRow connection_type_row;
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -44,19 +48,6 @@ namespace Storm {
 
             this.settings_row.activated.connect (() => {
                 print ("%d, %d\n", this.get_width (), this.get_height ());
-            });
-
-            this.navigation_view.popped.connect (() => {
-                this.server.close ();
-                this.server = null;
-                this.thread = null;
-            });
-
-            this.start_button.clicked.connect (() => {
-                thread = new Thread<void> ("server-thread", () => {
-                    this.server = new Server (PORT);
-                    this.server.start ();
-                });
             });
         }
     }

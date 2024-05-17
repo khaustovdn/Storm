@@ -1,4 +1,4 @@
-/* main.vala
+/* main-window.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-int main (string[] args) {
-    var app = new Storm.Application ();
-    return app.run (args);
+public static int main(string[] args) {
+    var app = new Storm.Application();
+    return app.run(args);
 }

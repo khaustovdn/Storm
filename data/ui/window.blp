@@ -66,6 +66,17 @@ template $StormWindow: Adw.ApplicationWindow {
                   title: 'Settings';
                 }
 
+                Adw.ComboRow connection_type_row {
+                  title: 'Connection Type';
+
+                  model: StringList connection_type_list {
+                    strings [
+                      "Create a game",
+                      "Join the game"
+                    ]
+                  };
+                }
+
                 styles [
                   "boxed-list",
                 ]

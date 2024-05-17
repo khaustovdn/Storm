@@ -22,7 +22,7 @@ namespace Storm {
     public class Server : Object {
         private MainLoop loop { get; default = new MainLoop (); }
         private SocketService service { get; default = new SocketService (); }
-        public Gee.ArrayList<ClientHandler?> players { get; default = new Gee.ArrayList<ClientHandler?> (); }
+        public Gee.ArrayList<ClientHandler> players { get; default = new Gee.ArrayList<ClientHandler> (); }
         public uint16 port { get; construct; }
 
         public Server (uint16 port) {
@@ -30,8 +30,8 @@ namespace Storm {
         }
 
         private bool on_incoming_connection (SocketConnection socket) {
-            stdout.printf ("Got incoming connection\n");
-            process_request.begin (socket);
+            message ("Got incoming connection\n");
+            this.process_request.begin (socket);
             return true;
         }
 
@@ -39,26 +39,21 @@ namespace Storm {
             new ClientHandler (this, socket);
         }
 
-        public void start () {
+        public int start () {
             try {
                 this.service.add_inet_port (this.port, null);
                 this.service.incoming.connect (this.on_incoming_connection);
                 this.service.start ();
                 this.loop.run ();
+                return 0;
             } catch (Error e) {
                 warning (e.message);
             }
-        }
-
-        public void close () {
-            this.broadcast (null, "server was closed\r\n");
-            this.remove_all_clients ();
-            this.service.stop ();
-            this.service.close ();
-            this.loop.quit ();
+            return 1;
         }
 
         public void broadcast (ClientHandler? client, string value) {
+            message (value);
             foreach (var player in this.players) {
                 if (player != client) {
                     player.send (value);
@@ -67,9 +62,9 @@ namespace Storm {
         }
 
         public void remove_client (ClientHandler client) {
-            this.broadcast (client, "the player logged off the server\r\n");
-            client.close ();
+            this.broadcast (client, "Player logged off the server");
             this.players.remove (client);
+            client.close ();
         }
 
         public void remove_all_clients () {
@@ -78,7 +73,7 @@ namespace Storm {
         }
 
         public void add_client (ClientHandler client) {
-            this.broadcast (client, "player logged into the server\r\n");
+            this.broadcast (client, "Player logged into the server");
             this.players.add (client);
         }
     }

@@ -32,11 +32,13 @@ namespace Storm {
         construct {
             this.in = new DataInputStream (this.socket.input_stream);
             this.out = new DataOutputStream (this.socket.output_stream);
-            this.server.add_client (this);
             new Thread<void> ("socket-thread", () => {
                 try {
+                    this.server.add_client (this);
+
                     while (!this.socket.is_closed ()) {
-                        string msg = this.in.read_line ();
+                        string? msg = this.in.read_line ();
+                        if (msg == null)break;
                         this.server.broadcast (this, msg);
                     }
                 } catch (Error e) {
@@ -44,16 +46,16 @@ namespace Storm {
                 } finally {
                     this.server.remove_client (this);
                 }
+                return;
             });
         }
 
         public void send (string value) {
             try {
-                this.out.write (@"$(value)\n".data);
+                this.out.write (@"$(value)\r\n".data);
                 this.out.flush ();
             } catch (Error e) {
                 warning (e.message);
-                this.server.remove_client (this);
             }
         }
 
