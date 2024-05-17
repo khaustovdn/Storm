@@ -22,16 +22,15 @@ namespace Storm {
     public class Server : Object {
         private MainLoop loop { get; default = new MainLoop (); }
         private SocketService service { get; default = new SocketService (); }
-        public ClientHandler ? [] players { get; default = new ClientHandler ? [2]; }
+        public Gee.ArrayList<ClientHandler?> players { get; default = new Gee.ArrayList<ClientHandler?> (); }
         public uint16 port { get; construct; }
 
         public Server (uint16 port) {
-            Object (port : port);
+            Object (port: port);
         }
 
         private bool on_incoming_connection (SocketConnection socket) {
             stdout.printf ("Got incoming connection\n");
-            // Process the request asynchronously
             process_request.begin (socket);
             return true;
         }
@@ -52,33 +51,35 @@ namespace Storm {
         }
 
         public void close () {
+            this.broadcast (null, "server was closed\r\n");
+            this.remove_all_clients ();
+            this.service.stop ();
             this.service.close ();
             this.loop.quit ();
         }
 
-        public void broadcast (ClientHandler client, string value) {
+        public void broadcast (ClientHandler? client, string value) {
             foreach (var player in this.players) {
-                if (player != null && player != client) {
+                if (player != client) {
                     player.send (value);
                 }
             }
         }
 
         public void remove_client (ClientHandler client) {
-            foreach (var player in this.players) {
-                if (player != null && player == client) {
-                    player.close ();
-                    player = null;
-                }
-            }
+            this.broadcast (client, "the player logged off the server\r\n");
+            client.close ();
+            this.players.remove (client);
+        }
+
+        public void remove_all_clients () {
+            this.players.foreach (f => f.close ());
+            this.players.clear ();
         }
 
         public void add_client (ClientHandler client) {
-            foreach (var player in this.players) {
-                if (player == null) {
-                    player = client;
-                }
-            }
+            this.broadcast (client, "player logged into the server\r\n");
+            this.players.add (client);
         }
     }
 }

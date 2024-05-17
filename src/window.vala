@@ -32,7 +32,8 @@ namespace Storm {
         [GtkChild]
         public unowned GameSetupPage game_setup_page;
 
-        public Server server { get; default = new Server (PORT); }
+        public Server server { get; set; }
+        private Thread<void> thread { get; set; }
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -45,9 +46,18 @@ namespace Storm {
                 print ("%d, %d\n", this.get_width (), this.get_height ());
             });
 
-            this.navigation_view.popped.connect (this.server.close);
+            this.navigation_view.popped.connect (() => {
+                this.server.close ();
+                this.server = null;
+                this.thread = null;
+            });
 
-            this.start_button.clicked.connect (this.server.start);
+            this.start_button.clicked.connect (() => {
+                thread = new Thread<void> ("server-thread", () => {
+                    this.server = new Server (PORT);
+                    this.server.start ();
+                });
+            });
         }
     }
 }
