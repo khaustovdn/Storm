@@ -16,8 +16,10 @@ gtk = dependency('gtk4', version: '>= 4.14')
 libadwaita = dependency('libadwaita-1', version: '>= 1.5')
 gio = dependency('gio-2.0', version: '>= 2.72')
 gee = dependency('gee-0.8')
+xml = dependency('libxml-2.0')
+gxml = dependency('gxml-0.20')
 
-storm_deps = [gtk, libadwaita, gio, gee]
+storm_deps = [gtk, libadwaita, gio, gee, xml, gxml]
 
 subdir('data')
 subdir('src')

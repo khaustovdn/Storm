@@ -1,4 +1,4 @@
-/* game-board.vala
+/* game.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,25 +19,12 @@
  */
 
 namespace Storm {
-    public class GameBoard : Gtk.Grid  {
-        public int line_count { get; construct; }
+    public class Game : Object {
+        public long id { get; construct; }
+        public Gee.ArrayList<Player> players { get; default = new Gee.ArrayList<Player> (); }
 
-        public GameBoard (int line_count) {
-            Object (line_count: line_count);
-        }
-
-        construct {
-            this.setup ();
-            this.set_can_focus (false);
-        }
-
-        private void setup () {
-            for (int i = 0; i < this.line_count; i++) {
-                for (int j = 0; j < this.line_count; j++) {
-                    Cell cell = new Cell (i, j);
-                    this.attach (cell, i, j, 1, 1);
-                }
-            }
+        public Game (long id) {
+            Object (id: id);
         }
     }
 }

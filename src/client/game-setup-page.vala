@@ -30,35 +30,8 @@ namespace Storm {
     [GtkChild]
     public unowned Gtk.Button apply_button;
 
-    public Player player { get; default = new Player (); }
-    public GamePage game_page { get; construct; }
-    public Adw.Breakpoint breakpoint { get; construct; }
-
     public GameSetupPage () {
       Object ();
-    }
-
-    construct {
-      this.game_page = new GamePage (player);
-      this.navigation_view.add (this.game_page);
-      this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 860px")));
-      this.breakpoint.add_setter (this.game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
-
-      this.random_button.clicked.connect (() => {
-        this.player.random_set ();
-        this.show_ships ();
-      });
-
-      this.apply_button.clicked.connect (() => {
-
-        this.game_page.show_ships ();
-      });
-    }
-
-    public void show_ships () {
-      foreach (var item in player.ships) {
-        this.board.get_child_at (item.x, item.y).add_css_class ("ship");
-      }
     }
   }
 }

@@ -21,9 +21,33 @@
 namespace Storm {
     public class Player : Gtk.Widget {
         public Gee.ArrayList<Point> ships { get; default = new Gee.ArrayList<Point> (); }
+        public Player opponent { get; set; }
+        public string user_name { get; construct; }
+        public long game_id { get; construct; }
 
-        public Player () {
-            Object ();
+        private SocketClient client { get; default = new SocketClient (); }
+        private SocketConnection socket { get; set; }
+
+        public Player (string user_name, long game_id) {
+            Object (user_name: user_name, game_id: game_id);
+        }
+
+        public void start () {
+            new Thread<void> ("client-thread", () => {
+                try {
+                    socket = client.connect_to_host ("127.0.0.1", 8080);
+
+                    PlayerParameters xml = new PlayerParameters(user_name, game_id);
+                    var message = @"$(xml.write_string ().replace("\n", ""))\n";
+                    socket.output_stream.write (message.data);
+
+                    while (true) {
+
+                    }
+                } catch (Error e) {
+                    warning (e.message);
+                }
+            });
         }
 
         public void random_set () {

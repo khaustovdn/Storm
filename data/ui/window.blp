@@ -58,8 +58,12 @@ template $StormWindow: Adw.ApplicationWindow {
               ListBox {
                 selection-mode: none;
 
-                Adw.EntryRow name_row {
-                  title: 'Name';
+                Adw.EntryRow player_name_row {
+                  title: 'Player Name';
+                }
+
+                Adw.EntryRow game_id_row {
+                  title: 'Game ID';
                 }
 
                 $StormListRow settings_row {
@@ -86,8 +90,6 @@ template $StormWindow: Adw.ApplicationWindow {
                 label: _('Start Game');
                 halign: center;
                 valign: center;
-                action-target: '\'game-setup-page\'';
-                action-name: 'navigation.push';
 
                 styles [
                   "suggested-action",
@@ -99,8 +101,6 @@ template $StormWindow: Adw.ApplicationWindow {
         };
       }
     }
-
-    $StormGameSetupPage game_setup_page {}
   }
 
   Adw.Breakpoint breakpoint {

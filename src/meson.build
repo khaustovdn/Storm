@@ -6,19 +6,23 @@ storm_sources = (
     'client/game-board.vala',
     'client/game-page.vala',
     'client/game-setup-page.vala',
+    'client/game.vala',
     'client/list-row.vala',
     'client/main-window.vala',
     'client/player.vala',
     'client/point.vala',
     'client/window.vala',
+    'player-parameters.vala',
   )
 )
 
 server_sources = (
   files(
     'server/client-handler.vala',
+    'server/game-handler.vala',
     'server/main-server.vala',
     'server/server.vala',
+    'player-parameters.vala',
   )
 )
 

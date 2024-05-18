@@ -29,26 +29,44 @@ namespace Storm {
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
+        public unowned Adw.EntryRow player_name_row;
+        [GtkChild]
+        public unowned Adw.EntryRow game_id_row;
+        [GtkChild]
+        public unowned Adw.ComboRow connection_type_row;
+        [GtkChild]
         public unowned Adw.NavigationView navigation_view;
         [GtkChild]
         public unowned ListRow settings_row;
         [GtkChild]
         public unowned Gtk.Button start_button;
-        [GtkChild]
-        public unowned GameSetupPage game_setup_page;
-        [GtkChild]
-        public unowned Adw.ComboRow connection_type_row;
+
+        public GameSetupPage game_setup_page { get; default = new GameSetupPage (); }
 
         public Window (Gtk.Application app) {
             Object (application: app);
         }
 
         construct {
-            this.add_breakpoint (this.game_setup_page.breakpoint);
+            this.start_button.clicked.connect (client_connect_handle);
+        }
 
-            this.settings_row.activated.connect (() => {
-                print ("%d, %d\n", this.get_width (), this.get_height ());
-            });
+        private void client_connect_handle () {
+            if (connection_type_row.get_selected () == ConnectionType.CREATE) {
+                long game_id = 0;
+                if (game_id_row.get_text_length () > 0 && long.try_parse (game_id_row.get_text (), out game_id)) {
+                    string user_name = this.player_name_row.get_text ();
+                    if (user_name.length > 0) {
+                        Game game = new Game (game_id);
+                        Player player = new Player (user_name, game_id);
+                        player.start ();
+                        game.players.add (player);
+                        navigation_view.push (game_setup_page);
+                    } else {
+                    }
+                } else {
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-/* game-board.vala
+/* player-parameters.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,25 +19,18 @@
  */
 
 namespace Storm {
-    public class GameBoard : Gtk.Grid  {
-        public int line_count { get; construct; }
+    public class PlayerParameters : GXml.Element {
+        [Description (nick = "::UserName")]
+        public string? user_name { get; set; }
+        [Description (nick = "::GameId")]
+        public string? game_id { get; set; }
 
-        public GameBoard (int line_count) {
-            Object (line_count: line_count);
+        public PlayerParameters (string? user_name = null, long? game_id = null) {
+            Object (user_name: user_name, game_id: game_id ? .to_string ());
         }
 
         construct {
-            this.setup ();
-            this.set_can_focus (false);
-        }
-
-        private void setup () {
-            for (int i = 0; i < this.line_count; i++) {
-                for (int j = 0; j < this.line_count; j++) {
-                    Cell cell = new Cell (i, j);
-                    this.attach (cell, i, j, 1, 1);
-                }
-            }
+            initialize ("PlayerParameters");
         }
     }
 }

@@ -23,6 +23,7 @@ namespace Storm {
         private MainLoop loop { get; default = new MainLoop (); }
         private SocketService service { get; default = new SocketService (); }
         public Gee.ArrayList<ClientHandler> players { get; default = new Gee.ArrayList<ClientHandler> (); }
+        public Gee.ArrayList<GameHandler> games { get; default = new Gee.ArrayList<GameHandler> (); }
         public uint16 port { get; construct; }
 
         public Server (uint16 port) {
@@ -30,7 +31,7 @@ namespace Storm {
         }
 
         private bool on_incoming_connection (SocketConnection socket) {
-            message ("Got incoming connection\n");
+            message ("Got incoming connection");
             this.process_request.begin (socket);
             return true;
         }

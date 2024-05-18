@@ -32,6 +32,21 @@
     ],
     "modules": [
         {
+            "name": "libgxml",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--libdir=lib"
+            ],
+            "builddir": true,
+            "sources": [
+                {
+                    "type": "git",
+                    "branch": "master",
+                    "url": "https://gitlab.gnome.org/GNOME/gxml.git"
+                }
+            ]
+        },
+        {
             "name": "blueprint-compiler",
             "buildsystem": "meson",
             "sources": [

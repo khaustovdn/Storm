@@ -25,6 +25,9 @@ namespace Storm {
         public DataInputStream in { private get; construct; }
         public DataOutputStream out { private get; construct; }
 
+        private string user_name { get; set; }
+        private long game_id { get; set; }
+
         public ClientHandler (Server server, SocketConnection socket) {
             Object (server: server, socket: socket);
         }
@@ -38,8 +41,30 @@ namespace Storm {
 
                     while (!this.socket.is_closed ()) {
                         string? msg = this.in.read_line ();
-                        if (msg == null)break;
-                        this.server.broadcast (this, msg);
+                        if (msg == null) {
+                            break;
+                        }
+
+                        GXml.Element element = null;
+
+                        if (msg.contains ("PlayerParameters")) {
+                            element = new PlayerParameters ();
+                            element.read_from_string (msg);
+                            this.user_name = ((PlayerParameters) element).user_name;
+                            this.game_id = long.parse (((PlayerParameters) element).game_id);
+
+                            if (this.server.games.map<long> (x => x.game_id).all_match (x => x != this.game_id)) {
+                                this.server.games.add (new GameHandler (this.game_id));
+                            }
+
+                            var game = this.server.games.first_match (x => x.game_id == this.game_id);
+                            if (game.players.size < 2) {
+                                game.players.add (this);
+                            }
+                        }
+
+                        message (@"server $(this.server.games.first ().game_id)");
+                        this.server.broadcast (this, "ok");
                     }
                 } catch (Error e) {
                     warning (e.message);
