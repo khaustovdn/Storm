@@ -19,25 +19,19 @@
  */
 
 namespace Storm {
-  [GtkTemplate (ui = "/io/github/Storm/ui/game-page.ui")]
-  public class GamePage : Adw.NavigationPage {
-    [GtkChild]
-    public unowned Gtk.Box field;
-    [GtkChild]
-    public unowned GameBoard player_board;
-    [GtkChild]
-    public unowned GameBoard opponent_board;
+    [GtkTemplate (ui = "/io/github/Storm/ui/game-page.ui")]
+    public class GamePage : Adw.NavigationPage {
+        [GtkChild]
+        public unowned Gtk.Box field;
+        [GtkChild]
+        public unowned Map player_board;
+        [GtkChild]
+        public unowned Map opponent_board;
 
-    public Player player { get; set; }
+        public Gee.ArrayList<Player> players { get; construct; }
 
-    public GamePage (Player player) {
-      Object (player: player);
+        public GamePage () {
+            Object ();
+        }
     }
-
-    public void show_ships () {
-      foreach (var item in player.ships) {
-        this.player_board.get_child_at (item.x, item.y).add_css_class ("ship");
-      }
-    }
-  }
 }

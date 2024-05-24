@@ -1,4 +1,4 @@
-/* player.vala
+/* player-handler.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,61 +19,46 @@
  */
 
 namespace Storm {
-    public class Player : Object {
+    public class PlayerHandler : Object {
         public string name { get; construct; }
-        public Room room { get; construct; }
-        public string host { private get; construct; }
-        public uint16 port { private get; construct; }
-        public Map map { get; construct; }
-        private SocketClient socket_client { get; set; }
-        private SocketConnection socket_connection { get; set; }
+        // public Room room { get; construct; }
+        // public Map map { get; construct; }
+        public Server server { get; construct; }
+        public SocketConnection socket_connection { get; construct; }
         private DataInputStream input_stream { get; set; }
         private DataOutputStream output_stream { get; set; }
 
-        public Player (string name, Room room, string host, uint16 port) {
-            Object (name: name, room: room, host: host, port: port);
+        public PlayerHandler (Server server, SocketConnection socket_connection) {
+            Object (/*server: server, */ socket_connection: socket_connection);
         }
 
         construct {
-            this.map = new Map (this);
             new Thread<void> ("player_thread", this.run);
         }
 
         private void run () {
-            try {
-                var resolver = Resolver.get_default ();
-                var addresses = resolver.lookup_by_name (this.host);
-                var address = addresses.nth_data (0);
+            this.input_stream = new DataInputStream (this.socket_connection.input_stream);
+            this.output_stream = new DataOutputStream (this.socket_connection.output_stream);
+            // lock (this.room) {
+            // this.room.add_player (this);
+            // this.send (this.to_element ());
+            // }
 
-                this.socket_client = new SocketClient ();
-                this.socket_connection = this.socket_client.connect (new InetSocketAddress (address, this.port));
-                this.input_stream = new DataInputStream (this.socket_connection.input_stream);
-                this.output_stream = new DataOutputStream (this.socket_connection.output_stream);
-
-                lock (this.room) {
-                    this.room.add_player (this);
-                    this.send (this.to_element ());
-                }
-
-                while (this.socket_connection.is_connected ()) {
-                    var msg = this.receive ();
-                    this.process_message (msg);
-                }
-            } catch (Error e) {
-                warning (@"Connection to server failed. $(e.message)");
-            } finally {
-                this.room.remove_player (this);
-                this.close_connection ();
+            while (this.socket_connection.is_connected ()) {
+                var msg = this.receive ();
+                this.process_message (msg);
             }
+            // this.room.remove_player (this);
+            this.close_connection ();
         }
 
         public GXml.Element? to_element () {
             try {
                 var element = new GXml.Element ();
                 element.set_attribute ("Name", this.name);
-                element.set_attribute ("RoomPort", this.room.port);
-                element.set_attribute ("ServerHost", this.host);
-                element.set_attribute ("ServerPort", this.port.to_string ());
+                // element.set_attribute ("RoomPort", this.room.port);
+                // element.set_attribute ("ServerHost", this.host);
+                // element.set_attribute ("ServerPort", this.port.to_string ());
                 element.initialize ("Player");
                 return element;
             } catch (Error e) {
@@ -129,7 +114,7 @@ namespace Storm {
             return null;
         }
 
-        private void close_connection () {
+        public void close_connection () {
             try {
                 this.socket_connection.close ();
             } catch (IOError e) {

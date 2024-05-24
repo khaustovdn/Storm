@@ -20,14 +20,28 @@
 
 namespace Storm {
     public class Server : Object {
-        private MainLoop loop { get; default = new MainLoop (); }
-        private SocketService service { get; default = new SocketService (); }
-        public Gee.ArrayList<ClientHandler> players { get; default = new Gee.ArrayList<ClientHandler> (); }
-        public Gee.ArrayList<GameHandler> games { get; default = new Gee.ArrayList<GameHandler> (); }
         public uint16 port { get; construct; }
+        public SocketService socket_service { get; construct; }
+        public PlayerArrayList players { get; construct; }
 
         public Server (uint16 port) {
             Object (port: port);
+        }
+
+        construct {
+            this.socket_service = new SocketService ();
+            this.players = new PlayerArrayList ();
+            try {
+                this.socket_service.add_inet_port (this.port, null);
+                this.socket_service.incoming.connect (on_incoming_connection);
+                this.socket_service.start ();
+                new MainLoop ().run ();
+            } catch (Error e) {
+                warning (@"Failed to start the server. $(e.message)");
+            } finally {
+                this.players.clear ();
+                this.socket_service.close ();
+            }
         }
 
         private bool on_incoming_connection (SocketConnection socket) {
@@ -37,45 +51,7 @@ namespace Storm {
         }
 
         private async void process_request (SocketConnection socket) {
-            new ClientHandler (this, socket);
-        }
-
-        public int start () {
-            try {
-                this.service.add_inet_port (this.port, null);
-                this.service.incoming.connect (this.on_incoming_connection);
-                this.service.start ();
-                this.loop.run ();
-                return 0;
-            } catch (Error e) {
-                warning (e.message);
-            }
-            return 1;
-        }
-
-        public void broadcast (ClientHandler? client, string value) {
-            message (value);
-            foreach (var player in this.players) {
-                if (player != client) {
-                    player.send (value);
-                }
-            }
-        }
-
-        public void remove_client (ClientHandler client) {
-            this.broadcast (client, "Player logged off the server");
-            this.players.remove (client);
-            client.close ();
-        }
-
-        public void remove_all_clients () {
-            this.players.foreach (f => f.close ());
-            this.players.clear ();
-        }
-
-        public void add_client (ClientHandler client) {
-            this.broadcast (client, "Player logged into the server");
-            this.players.add (client);
+            new PlayerHandler (this, socket);
         }
     }
 }

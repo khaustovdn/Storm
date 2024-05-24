@@ -19,13 +19,13 @@
  */
 
 namespace Storm {
-  [GtkTemplate (ui = "/io/github/Storm/ui/list-row.ui")]
-  public class ListRow : Adw.ActionRow {
-    [GtkChild]
-    public unowned Gtk.Image arrow;
+    [GtkTemplate (ui = "/io/github/Storm/ui/list-row.ui")]
+    public class ListRow : Adw.ActionRow {
+        [GtkChild]
+        public unowned Gtk.Image arrow;
 
-    public ListRow () {
-      Object ();
+        public ListRow () {
+            Object ();
+        }
     }
-  }
 }

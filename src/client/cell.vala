@@ -21,6 +21,9 @@
 namespace Storm {
     [GtkTemplate (ui = "/io/github/Storm/ui/cell.ui")]
     public class Cell : Gtk.Frame {
+        [GtkChild]
+        public unowned Gtk.Button button;
+
         public int row { get; construct; }
         public int column { get; construct; }
 
@@ -29,8 +32,22 @@ namespace Storm {
         }
 
         construct {
+            this.set_can_focus (false);
             this.set_name ("cell" + row.to_string () + column.to_string ());
             this.add_css_class ("cell");
+        }
+
+        public GXml.Element? to_element () {
+            try {
+                var element = new GXml.Element ();
+                element.set_attribute ("PositionX", this.row.to_string ());
+                element.set_attribute ("PositionY", this.column.to_string ());
+                element.initialize ("Click");
+                return element;
+            } catch (Error e) {
+                warning (@"Failed to create xml element. $(e.message)");
+            }
+            return null;
         }
     }
 }

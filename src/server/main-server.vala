@@ -22,8 +22,9 @@ public static int main(string[] args) {
     int port = 0;
     if (args[1] == "--port" && int.try_parse(args[2], out port)) {
         if (port > Math.pow(2, 11) && port < Math.pow(2, 16)) {
-            var server = new Storm.Server((uint16) port);
-            return server.start();
+            message("Server running ...");
+            new Storm.Server((uint16) port);
+            return 0;
         }
     }
     return 1;

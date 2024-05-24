@@ -1,4 +1,4 @@
-/* player-parameters.vala
+/* player-array-list.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,18 +19,30 @@
  */
 
 namespace Storm {
-    public class PlayerParameters : GXml.Element {
-        [Description (nick = "::UserName")]
-        public string? user_name { get; set; }
-        [Description (nick = "::GameId")]
-        public string? game_id { get; set; }
-
-        public PlayerParameters (string? user_name = null, long? game_id = null) {
-            Object (user_name: user_name, game_id: game_id ? .to_string ());
+    public class PlayerArrayList : Gee.ArrayList<PlayerHandler> {
+        public PlayerArrayList () {
+            Object ();
         }
 
-        construct {
-            initialize ("PlayerParameters");
+        public void broadcast (GXml.Element element) {
+            // think about the margin for error
+            foreach (var player in this) {
+                player.send (element);
+            }
+        }
+
+        public override bool remove (PlayerHandler player) {
+            // think about the margin for error
+            player.close_connection ();
+            return base.remove (player);
+        }
+
+        public override void clear () {
+            // think about the margin for error
+            foreach (var player in this) {
+                player.close_connection ();
+            }
+            base.clear ();
         }
     }
 }

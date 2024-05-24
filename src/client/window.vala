@@ -19,53 +19,72 @@
  */
 
 namespace Storm {
-    private const uint16 PORT = 8080;
+    private const uint16 PORT = 3333;
+    private const string HOST = "127.0.0.1";
 
-    private enum ConnectionType {
-        CREATE,
-        JOIN
+    private enum PlayerRole {
+        CREATOR,
+        PLAYER
     }
 
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
-        public unowned Adw.EntryRow player_name_row;
+        public unowned EntryRow player_name_row;
         [GtkChild]
-        public unowned Adw.EntryRow game_id_row;
-        [GtkChild]
-        public unowned Adw.ComboRow connection_type_row;
-        [GtkChild]
-        public unowned Adw.NavigationView navigation_view;
+        public unowned EntryRow room_port_row;
         [GtkChild]
         public unowned ListRow settings_row;
         [GtkChild]
-        public unowned Gtk.Button start_button;
+        public unowned Adw.ComboRow connection_type_row;
+        [GtkChild]
+        public unowned Gtk.Button room_button;
+        [GtkChild]
+        public unowned Adw.NavigationView navigation_view;
+        [GtkChild]
+        public unowned Adw.Breakpoint breakpoint;
 
-        public GameSetupPage game_setup_page { get; default = new GameSetupPage (); }
+        public Gee.ArrayList<Room> rooms { get; construct; }
 
         public Window (Gtk.Application app) {
             Object (application: app);
         }
 
         construct {
-            this.start_button.clicked.connect (client_connect_handle);
+            this.player_name_row.changed.connect (this.validate_row);
+            this.room_port_row.changed.connect (this.validate_row);
+            this.room_button.clicked.connect (this.client_connect_handle);
+            this.room_button.set_sensitive (false);
+            this.rooms = new Gee.ArrayList<Room> ();
+        }
+
+        private void validate_row () {
+            var is_valid_player_name_row = this.player_name_row.validate_row ();
+            var is_valid_room_port_row = this.room_port_row.validate_numeric_row ();
+            var is_active = is_valid_player_name_row && is_valid_room_port_row;
+            this.room_button.set_sensitive (is_active);
         }
 
         private void client_connect_handle () {
-            if (connection_type_row.get_selected () == ConnectionType.CREATE) {
-                long game_id = 0;
-                if (game_id_row.get_text_length () > 0 && long.try_parse (game_id_row.get_text (), out game_id)) {
-                    string user_name = this.player_name_row.get_text ();
-                    if (user_name.length > 0) {
-                        Game game = new Game (game_id);
-                        Player player = new Player (user_name, game_id);
-                        player.start ();
-                        game.players.add (player);
-                        navigation_view.push (game_setup_page);
-                    } else {
-                    }
-                } else {
-                }
+            var name = this.player_name_row.get_text ();
+            var room_port = this.room_port_row.get_text ();
+            Room? room = null;
+
+            if (this.connection_type_row.get_selected () == PlayerRole.CREATOR) {
+                // Need to check if a room with the specified port does not exist
+                room = new Room (room_port);
+            } else if (this.connection_type_row.get_selected () == PlayerRole.PLAYER) {
+                room = this.rooms.first_match (x => x.port == room_port);
+            }
+
+            if (room != null) {
+                // Need to create a game class with rooms and all connected players to handle all actions
+                var player = new Player (name, room, HOST, PORT);
+                var room_page = new RoomPage (player);
+                this.add_breakpoint (room_page.breakpoint);
+                this.navigation_view.push (room_page);
+            } else {
+                warning ("Failed to connect to the room");
             }
         }
     }

@@ -2,40 +2,32 @@ using Gtk 4.0;
 using Adw 1;
 
 template $StormGamePage: Adw.NavigationPage {
-  title: _('Game');
-  tag: 'game-page';
+    title: _('Game');
+    tag: 'game-page';
 
-  child: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {}
+    child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {}
 
-    content: ScrolledWindow {
-      Adw.Clamp {
-        margin-bottom: 24;
-        margin-end: 12;
-        margin-top: 24;
-        margin-start: 12;
-        maximum-size: 860;
+        content: ScrolledWindow {
+            Adw.Clamp {
+                margin-bottom: 24;
+                margin-end: 12;
+                margin-top: 24;
+                margin-start: 12;
+                maximum-size: 860;
 
-        Box field {
-          orientation: vertical;
-          spacing: 32;
-          valign: center;
-          halign: center;
+                Box field {
+                    orientation: vertical;
+                    spacing: 64;
+                    valign: center;
+                    halign: center;
 
-          Frame {
-            $StormGameBoard player_board {
-              line-count: 10;
+                    $StormMap player_board {}
+
+                    $StormMap opponent_board {}
+                }
             }
-          }
-
-          Frame {
-            $StormGameBoard opponent_board {
-              line-count: 10;
-            }
-          }
-        }
-      }
+        };
     };
-  };
 }

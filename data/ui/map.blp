@@ -1,0 +1,18 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $StormMap: Frame {
+    Box {
+        orientation: vertical;
+
+        Adw.ActionRow name_row {
+            title: "Name";
+
+            styles [
+                "property"
+            ]
+        }
+
+        Grid grid {}
+    }
+}

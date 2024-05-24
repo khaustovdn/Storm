@@ -1,4 +1,4 @@
-/* game.vala
+/* entry-row.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,12 +19,29 @@
  */
 
 namespace Storm {
-    public class Game : Object {
-        public long id { get; construct; }
-        public Gee.ArrayList<Player> players { get; default = new Gee.ArrayList<Player> (); }
+    public class EntryRow : Adw.EntryRow {
+        public EntryRow () {
+            Object ();
+        }
 
-        public Game (long id) {
-            Object (id: id);
+        public bool validate_row () {
+            if (this.text_length > 0) {
+                return true;
+            } else {
+                warning ("Empty row.");
+            }
+            return false;
+        }
+
+        public bool validate_numeric_row () {
+            if (this.validate_row ()) {
+                if (long.try_parse (this.text, null)) {
+                    return true;
+                } else {
+                    warning ("Failed to parse string to integer.");
+                }
+            }
+            return false;
         }
     }
 }
