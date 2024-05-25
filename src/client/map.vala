@@ -28,19 +28,20 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Grid grid;
 
+        public string player_name { get; construct; }
         public Gee.ArrayList<char> ships { get; construct; }
 
-        public Map (string name, Gee.ArrayList<char> ships) {
-            Object (ships: ships);
-            this.name_row.set_subtitle (name);
+        public Map (string player_name, Gee.ArrayList<char> ships) {
+            Object (player_name: player_name, ships: ships);
         }
 
         construct {
+            this.name_row.set_subtitle (player_name);
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
                     var cell = new Cell (i, j);
-                    if (name_row.get_subtitle () != player.name) {
-                        cell.button.clicked.connect (() => {
+                    cell.button.clicked.connect (() => {
+                        if (player_name != player.name) {
                             var document = cell.to_document ();
                             player.send (document);
                             var msg = player.receive ();
@@ -48,11 +49,11 @@ namespace Storm {
                             atack_document.read_from_string (msg);
                             if (atack_document.first_element_child.get_attribute ("value") == "true") {
                                 cell.add_css_class ("ship");
-                            } else {
+                            } else if (atack_document.first_element_child.get_attribute ("value") == "false") {
                                 cell.add_css_class ("empty");
                             }
-                        });
-                    }
+                        }
+                    });
                     this.grid.attach (cell, i, j);
 
                     if (this.ships.size != LINE_COUNT * LINE_COUNT) {

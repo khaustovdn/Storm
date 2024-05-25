@@ -149,7 +149,7 @@ namespace Storm {
         private void set_map_handle (GXml.Document document) {
             var element = document.first_element_child;
             this.ships = element.get_attribute ("ships");
-            if (room.players.size == 2 && room.players.all_match (x => x.ships.length > 0 && x.ships.contains ("#"))) {
+            if (room.players.size == 2 && room.players.all_match (x => x.ships != null && x.ships.length > 0 && x.ships.contains ("#"))) {
                 this.send (this.room.players.first_match (x => x != this).to_document ());
                 this.room.players.first_match (x => x != this).send (this.room.players.first_match (x => x == this).to_document ());
             }
@@ -159,19 +159,21 @@ namespace Storm {
             var element = document.first_element_child;
             var pos_x = int.parse (element.get_attribute ("position_x"));
             var pos_y = int.parse (element.get_attribute ("position_y"));
+            var atack_document = new GXml.Document ();
+            var atack_element = new GXml.Element ();
             if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
-                var atack_document = new GXml.Document ();
-                var atack_element = new GXml.Element ();
                 if (this.room.players.first_match (x => x != this).ships.get (pos_y * 10 + pos_x) == '#') {
                     atack_element.set_attribute ("value", "true");
                 } else {
                     atack_element.set_attribute ("value", "false");
                 }
-                atack_element.initialize ("atack");
-                atack_document.read_from_string (atack_element.write_string ());
-                this.send (atack_document);
                 room.switcher = !room.switcher;
+            } else {
+                atack_element.set_attribute ("value", "skip");
             }
+            atack_element.initialize ("atack");
+            atack_document.read_from_string (atack_element.write_string ());
+            this.send (atack_document);
         }
 
         public bool send (GXml.Document document) {
