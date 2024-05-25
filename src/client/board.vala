@@ -104,31 +104,31 @@ namespace Storm {
 
             if (is_horiz) {
                 for (int j = col_left; j < col_left + size; j++) {
-                    ships[row_top * LINE_COUNT + j] = '#';
+                    this.ships[row_top * LINE_COUNT + j] = '#';
                 }
             } else {
                 for (int i = row_top; i < row_top + size; i++) {
-                    ships[i * LINE_COUNT + col_left] = '#';
+                    this.ships[i * LINE_COUNT + col_left] = '#';
                 }
             }
         }
 
         public void create_ships () {
+            this.ships.foreach (x => { x = ' '; return true; });
+
             for (int i = 0; i < 1; i++) {
                 set_ship_with_size (4);
             }
-
             for (int i = 0; i < 2; i++) {
                 set_ship_with_size (3);
             }
-
             for (int i = 0; i < 3; i++) {
                 set_ship_with_size (2);
             }
-
             for (int i = 0; i < 4; i++) {
                 set_ship_with_size (1);
             }
+
             this.show_ships ();
         }
 

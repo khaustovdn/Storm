@@ -41,15 +41,14 @@ namespace Storm {
         }
 
         construct {
-            this.player_name_row.changed.connect (this.validate_row);
-            this.room_port_row.changed.connect (this.validate_row);
-            this.connection_type_row.notify["selected"].connect (this.validate_row);
+            this.player_name_row.changed.connect (this.handle_validation_row);
+            this.room_port_row.changed.connect (this.handle_validation_row);
+            this.connection_type_row.notify["selected"].connect (this.handle_validation_row);
             this.room_button.clicked.connect (this.handle_connection);
-            this.room_button.set_sensitive (false);
             player = new Player (HOST, PORT);
         }
 
-        private void validate_row () {
+        private void handle_validation_row () {
             try {
                 var is_valid_player_name_row = this.player_name_row.validate_row ();
                 var is_valid_room_port_row = this.room_port_row.validate_numeric_row ();
@@ -87,8 +86,23 @@ namespace Storm {
                 var room_page = new RoomPage ();
                 this.add_breakpoint (room_page.breakpoint);
                 this.navigation_view.push (room_page);
+                this.navigation_view.popped.connect (handle_discnnection);
             } catch (Error e) {
                 warning (@"Connection to the room failed. $(e.message)");
+            }
+        }
+
+        private void handle_discnnection () {
+            try {
+                var document = new GXml.Document ();
+                var element = new GXml.Element ();
+                element.set_attribute ("value", "true");
+                element.initialize ("exit");
+                document.read_from_string (element.write_string ());
+                player.send (document);
+                this.handle_validation_row ();
+            } catch (Error e) {
+                warning (@"Disconnection failed. $(e.message)");
             }
         }
     }

@@ -22,7 +22,7 @@ namespace Storm {
     public class Server : Object {
         public uint16 port { get; construct; }
         public SocketService socket_service { get; construct; }
-        public PlayerArrayList players { get; construct; }
+        public Gee.ArrayList<Player> players { get; construct; }
         public Gee.ArrayList<Room> rooms { get; construct; }
 
         public Server (uint16 port) {
@@ -31,7 +31,7 @@ namespace Storm {
 
         construct {
             this.socket_service = new SocketService ();
-            this.players = new PlayerArrayList ();
+            this.players = new Gee.ArrayList<Player> ();
             this.rooms = new Gee.ArrayList<Room> ();
 
             try {

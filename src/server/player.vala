@@ -85,6 +85,9 @@ namespace Storm {
                     case "attack":
                         this.handle_attack (document);
                         break;
+                    case "exit":
+                        this.handle_disconnect (document);
+                        break;
                     }
                     return true;
                 } catch (Error e) {
@@ -177,6 +180,14 @@ namespace Storm {
                 this.send (atack_document);
             } catch (Error e) {
                 warning (@"Failed to establish a connection for the attack. $(e.message)");
+            }
+        }
+
+        private void handle_disconnect (GXml.Document document) {
+            this.server.players.remove (this);
+            this.room.players.remove (this);
+            if (this.room.players.size == 0) {
+                this.server.rooms.remove (this.room);
             }
         }
 

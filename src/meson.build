@@ -18,7 +18,6 @@ storm_sources = (
 server_sources = (
   files(
     'server/main-server.vala',
-    'server/player-array-list.vala',
     'server/player.vala',
     'server/room.vala',
     'server/server.vala',

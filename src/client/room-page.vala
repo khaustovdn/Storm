@@ -53,24 +53,27 @@ namespace Storm {
         }
 
         private void connect_signals () {
-            this.random_button.clicked.connect (this.board.create_ships);
-            this.apply_button.clicked.connect (() => {
-                handle_apply_button_click ();
+            this.random_button.clicked.connect (() => {
+                this.board.create_ships ();
+                this.apply_button.set_sensitive (true);
             });
+            this.apply_button.clicked.connect (this.handle_apply_button_click);
         }
 
         private void handle_apply_button_click () {
-            player.send (board.to_document ());
+            if (player.ships.contains ('#')) {
+                player.send (board.to_document ());
 
-            try {
-                var msg = player.receive ();
-                var document = new GXml.Document ();
-                document.read_from_string (msg);
-                var player_name = document.first_element_child.get_attribute ("player_name");
-                var new_board = new Board (player_name, new Gee.ArrayList<char> ());
-                this.load_game_page (new_board);
-            } catch (Error e) {
-                warning (@"Failed to get the data to start the game. $(e.message)");
+                try {
+                    var msg = player.receive ();
+                    var document = new GXml.Document ();
+                    document.read_from_string (msg);
+                    var player_name = document.first_element_child.get_attribute ("player_name");
+                    var new_board = new Board (player_name, new Gee.ArrayList<char> ());
+                    this.load_game_page (new_board);
+                } catch (Error e) {
+                    warning (@"Failed to get the data to start the game. $(e.message)");
+                }
             }
         }
 

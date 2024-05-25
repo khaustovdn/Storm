@@ -22,14 +22,14 @@ namespace Storm {
     public class Room : Object {
         public string port { get; construct; }
         public bool switcher { get; set; }
-        public PlayerArrayList players { get; construct; }
+        public Gee.ArrayList<Player> players { get; construct; }
 
         public Room (string port) {
             Object (port: port);
         }
 
         construct {
-            this.players = new PlayerArrayList ();
+            this.players = new Gee.ArrayList<Player> ();
         }
 
         public void remove_player (Player? player) {
