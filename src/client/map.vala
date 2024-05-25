@@ -31,7 +31,7 @@ namespace Storm {
         public Gee.ArrayList<char> ships { get; construct; }
 
         public Map (string name, Gee.ArrayList<char> ships) {
-            Object (ships : ships);
+            Object (ships: ships);
             this.name_row.set_subtitle (name);
         }
 
@@ -76,10 +76,68 @@ namespace Storm {
             return null;
         }
 
+        bool ship_is_good (int size, bool is_horiz, int row_top, int col_left) {
+            if (is_horiz) {
+                for (int i = int.max (0, row_top - 1); i <= int.min (9, row_top + 1); i++) {
+                    for (int j = int.max (0, col_left - 1); j <= int.min (9, col_left + size); j++) {
+                        if (ships[i * 10 + j] == '#')return false;
+                    }
+                }
+
+                return true;
+            } else {
+                for (int i = int.max (0, row_top - 1); i <= int.min (9, row_top + size); i++) {
+                    for (int j = int.max (0, col_left - 1); j <= int.min (9, col_left + 1); j++) {
+                        if (ships[i * 10 + j] == '#')return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        void set_ship_with_size (int size) {
+            Rand rand = new Rand ();
+            bool is_horiz = (rand.next_int () % 2) == 0;
+            int row_top = 0;
+            int col_left = 0;
+
+            do {
+                do {
+                    row_top = rand.int_range (0, 10);
+                } while (!is_horiz && row_top > 10 - size);
+
+                do {
+                    col_left = rand.int_range (0, 10);
+                } while (is_horiz && col_left > 10 - size);
+            } while (!ship_is_good (size, is_horiz, row_top, col_left));
+
+            if (is_horiz) {
+                for (int j = col_left; j < col_left + size; j++) {
+                    ships[row_top * 10 + j] = '#';
+                }
+            } else {
+                for (int i = row_top; i < row_top + size; i++) {
+                    ships[i * 10 + col_left] = '#';
+                }
+            }
+        }
+
         public void create_ships () {
-            var rand = new Rand ();
-            for (int i = 0; i < LINE_COUNT; i++) {
-                this.ships.set (i * LINE_COUNT + rand.int_range (0, LINE_COUNT), '#');
+            for (int i = 0; i < 1; i++) {
+                set_ship_with_size (4);
+            }
+
+            for (int i = 0; i < 2; i++) {
+                set_ship_with_size (3);
+            }
+
+            for (int i = 0; i < 3; i++) {
+                set_ship_with_size (2);
+            }
+
+            for (int i = 0; i < 4; i++) {
+                set_ship_with_size (1);
             }
             this.show_ships ();
         }
