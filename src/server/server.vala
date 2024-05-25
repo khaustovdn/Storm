@@ -23,6 +23,7 @@ namespace Storm {
         public uint16 port { get; construct; }
         public SocketService socket_service { get; construct; }
         public PlayerArrayList players { get; construct; }
+        public Gee.ArrayList<Room> rooms { get; construct; }
 
         public Server (uint16 port) {
             Object (port: port);
@@ -31,6 +32,8 @@ namespace Storm {
         construct {
             this.socket_service = new SocketService ();
             this.players = new PlayerArrayList ();
+            this.rooms = new Gee.ArrayList<Room> ();
+
             try {
                 this.socket_service.add_inet_port (this.port, null);
                 this.socket_service.incoming.connect (on_incoming_connection);
@@ -51,7 +54,7 @@ namespace Storm {
         }
 
         private async void process_request (SocketConnection socket) {
-            new PlayerHandler (this, socket);
+            new Player (this, socket);
         }
     }
 }

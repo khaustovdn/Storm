@@ -30,21 +30,26 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Box map_box;
 
-        public Player player { get; construct; }
         public Adw.Breakpoint breakpoint { get; construct; }
+        public new unowned Map map { get; construct; }
 
-        public RoomPage (Player player) {
-            Object (player: player);
+        public RoomPage () {
+            Object ();
         }
 
         construct {
-            this.map_box.prepend (this.player.map);
-            this.random_button.clicked.connect (this.player.map.create_ships);
+            this.map = new Map (player.name, player.ships);
+            this.map_box.prepend (this.map);
+            this.random_button.clicked.connect (this.map.create_ships);
             this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 860px")));
             this.apply_button.clicked.connect (() => {
-                var game_page = new GamePage ();
+                player.send (map.to_document ());
+                var msg = player.receive ();
+                var document = new GXml.Document ();
+                document.read_from_string (msg);
+                var game_page = new GamePage (new Map (document.first_element_child.get_attribute ("player_name"), new Gee.ArrayList<char> ()));
+                this.breakpoint.add_setter (game_page.map_box, "orientation", Gtk.Orientation.HORIZONTAL);
                 this.navigation_view.push (game_page);
-                this.breakpoint.add_setter (game_page.field, "orientation", Gtk.Orientation.HORIZONTAL);
             });
         }
     }

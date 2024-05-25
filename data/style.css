@@ -7,3 +7,7 @@
 .ship {
     background-color: black;
 }
+
+.empty {
+    background-color: red;
+}

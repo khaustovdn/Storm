@@ -37,15 +37,17 @@ namespace Storm {
             this.add_css_class ("cell");
         }
 
-        public GXml.Element? to_element () {
+        public GXml.Document? to_document () {
             try {
+                var document = new GXml.Document ();
                 var element = new GXml.Element ();
-                element.set_attribute ("PositionX", this.row.to_string ());
-                element.set_attribute ("PositionY", this.column.to_string ());
-                element.initialize ("Click");
-                return element;
+                element.set_attribute ("position_x", this.row.to_string ());
+                element.set_attribute ("position_y", this.column.to_string ());
+                element.initialize ("atack");
+                document.read_from_string (element.write_string ());
+                return document;
             } catch (Error e) {
-                warning (@"Failed to create xml element. $(e.message)");
+                warning (@"Failed to create xml document. $(e.message)");
             }
             return null;
         }

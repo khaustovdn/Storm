@@ -19,19 +19,19 @@
  */
 
 namespace Storm {
-    public class PlayerArrayList : Gee.ArrayList<PlayerHandler> {
+    public class PlayerArrayList : Gee.ArrayList<Player> {
         public PlayerArrayList () {
             Object ();
         }
 
-        public void broadcast (GXml.Element element) {
+        public void broadcast (GXml.Document document) {
             // think about the margin for error
             foreach (var player in this) {
-                player.send (element);
+                player.send (document);
             }
         }
 
-        public override bool remove (PlayerHandler player) {
+        public override bool remove (Player player) {
             // think about the margin for error
             player.close_connection ();
             return base.remove (player);

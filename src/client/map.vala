@@ -29,37 +29,49 @@ namespace Storm {
         public unowned Gtk.Grid grid;
 
         public Gee.ArrayList<char> ships { get; construct; }
-        public Player player { get; construct; }
 
-        public Map (Player player) {
-            Object (player: player);
+        public Map (string name, Gee.ArrayList<char> ships) {
+            Object (ships : ships);
+            this.name_row.set_subtitle (name);
         }
 
         construct {
-            this.name_row.set_subtitle (this.player.name);
-            this.ships = new Gee.ArrayList<char> ();
-
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
                     var cell = new Cell (i, j);
-                    cell.button.clicked.connect (() => {
-                        var element = cell.to_element ();
-                        this.player.send (element);
-                    });
+                    if (name_row.get_subtitle () != player.name) {
+                        cell.button.clicked.connect (() => {
+                            var document = cell.to_document ();
+                            player.send (document);
+                            var msg = player.receive ();
+                            var atack_document = new GXml.Document ();
+                            atack_document.read_from_string (msg);
+                            if (atack_document.first_element_child.get_attribute ("value") == "true") {
+                                cell.add_css_class ("ship");
+                            } else {
+                                cell.add_css_class ("empty");
+                            }
+                        });
+                    }
                     this.grid.attach (cell, i, j);
-                    this.ships.add (' ');
+
+                    if (this.ships.size != LINE_COUNT * LINE_COUNT) {
+                        this.ships.add (' ');
+                    }
                 }
             }
         }
 
-        public GXml.Element? to_element () {
+        public GXml.Document? to_document () {
             try {
+                var document = new GXml.Document ();
                 var element = new GXml.Element ();
-                element.set_attribute ("String", (string) this.ships.to_array ());
-                element.initialize ("Ships");
-                return element;
+                element.set_attribute ("ships", (string) this.ships.to_array ());
+                element.initialize ("set_map");
+                document.read_from_string (element.write_string ());
+                return document;
             } catch (Error e) {
-                warning (@"Failed to create xml element. $(e.message)");
+                warning (@"Failed to create xml document. $(e.message)");
             }
             return null;
         }
@@ -72,7 +84,7 @@ namespace Storm {
             this.show_ships ();
         }
 
-        private void show_ships () {
+        public void show_ships () {
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
                     if (this.ships.get (i * LINE_COUNT + j) == '#') {

@@ -20,23 +20,21 @@
 
 namespace Storm {
     public class Player : Object {
-        public string name { get; construct; }
-        public Room room { get; construct; }
         public string host { private get; construct; }
         public uint16 port { private get; construct; }
-        public Map map { get; construct; }
+        public string name { get; set; }
+        public Gee.ArrayList<char> ships { get; set; }
         private SocketClient socket_client { get; set; }
         private SocketConnection socket_connection { get; set; }
         private DataInputStream input_stream { get; set; }
         private DataOutputStream output_stream { get; set; }
 
-        public Player (string name, Room room, string host, uint16 port) {
-            Object (name: name, room: room, host: host, port: port);
+        public Player (string host, uint16 port) {
+            Object (host: host, port: port);
         }
 
         construct {
-            this.map = new Map (this);
-            new Thread<void> ("player_thread", this.run);
+            new Thread<void> ("connection_thread", this.run);
         }
 
         private void run () {
@@ -50,60 +48,20 @@ namespace Storm {
                 this.input_stream = new DataInputStream (this.socket_connection.input_stream);
                 this.output_stream = new DataOutputStream (this.socket_connection.output_stream);
 
-                lock (this.room) {
-                    this.room.add_player (this);
-                    this.send (this.to_element ());
-                }
-
-                while (this.socket_connection.is_connected ()) {
-                    var msg = this.receive ();
-                    this.process_message (msg);
-                }
+                new MainLoop ().run ();
             } catch (Error e) {
                 warning (@"Connection to server failed. $(e.message)");
             } finally {
-                this.room.remove_player (this);
                 this.close_connection ();
             }
         }
 
-        public GXml.Element? to_element () {
+        public bool send (GXml.Document document) {
             try {
-                var element = new GXml.Element ();
-                element.set_attribute ("Name", this.name);
-                element.set_attribute ("RoomPort", this.room.port);
-                element.set_attribute ("ServerHost", this.host);
-                element.set_attribute ("ServerPort", this.port.to_string ());
-                element.initialize ("Player");
-                return element;
-            } catch (Error e) {
-                warning (@"Failed to create xml element. $(e.message)");
-            }
-            return null;
-        }
-
-        private bool process_message (string? msg) {
-            if (msg != null) {
-                try {
-                    var element = new GXml.Element ();
-                    element.read_from_string (msg.strip ().replace ("\n", " "));
-                    // do
-                    return true;
-                } catch (Error e) {
-                    warning (@"Can't read the message. $(e.message)");
-                }
-            } else {
-                warning ("An empty message was received.");
-                this.close_connection ();
-            }
-            return false;
-        }
-
-        public bool send (GXml.Element element) {
-            try {
-                if (element != null) {
-                    var msg = element.write_string ().strip ().replace ("\n", "");
+                if (document != null) {
+                    var msg = document.write_string ().replace ("\n", "");
                     this.output_stream.write (@"$msg\n".data);
+                    this.output_stream.flush ();
                     message ("Message sent.");
                     return true;
                 } else {
@@ -116,7 +74,7 @@ namespace Storm {
             return false;
         }
 
-        private string ? receive () {
+        public string ? receive () {
             try {
                 message ("Message received.");
                 var msg = this.input_stream.read_line ();

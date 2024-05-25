@@ -19,6 +19,11 @@
  */
 
 namespace Storm {
+    private const uint16 PORT = 3333;
+    private const string HOST = "127.0.0.1";
+
+    public static Player player;
+
     public class Application : Adw.Application {
         public Application () {
             Object (application_id: "io.github.Storm", flags: ApplicationFlags.DEFAULT_FLAGS);
@@ -31,7 +36,7 @@ namespace Storm {
                 { "quit", this.quit }
             };
             this.add_action_entries (action_entries, this);
-            this.set_accels_for_action ("app.quit", {"<primary>q"});
+            this.set_accels_for_action ("app.quit", { "<primary>q" });
         }
 
         public override void activate () {

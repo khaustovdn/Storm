@@ -1,4 +1,4 @@
-/* game-page.vala
+/* player-role.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,24 +19,8 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/game-page.ui")]
-    public class GamePage : Adw.NavigationPage {
-        [GtkChild]
-        public unowned Gtk.Box map_box;
-
-        public Map opponent_map { get; construct; }
-
-        public new unowned Map map { get; construct; }
-
-        public GamePage (Map opponent_map) {
-            Object (opponent_map: opponent_map);
-        }
-
-        construct {
-            this.map = new Map (player.name, player.ships);
-            this.map_box.append (this.map);
-            this.map_box.append (this.opponent_map);
-            this.map.show_ships ();
-        }
+    public enum PlayerRole {
+        CREATOR,
+        PLAYER
     }
 }

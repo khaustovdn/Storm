@@ -1,4 +1,4 @@
-/* room-handler.vala
+/* room.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,11 +19,12 @@
  */
 
 namespace Storm {
-    public class RoomHandler : Object {
+    public class Room : Object {
         public string port { get; construct; }
+        public bool switcher { get; set; }
         public PlayerArrayList players { get; construct; }
 
-        public RoomHandler (string port) {
+        public Room (string port) {
             Object (port: port);
         }
 
@@ -31,7 +32,7 @@ namespace Storm {
             this.players = new PlayerArrayList ();
         }
 
-        public void remove_player (PlayerHandler? player) {
+        public void remove_player (Player? player) {
             if (player != null) {
                 this.players.remove (player);
             } else {
@@ -39,7 +40,7 @@ namespace Storm {
             }
         }
 
-        public void add_player (PlayerHandler? player) {
+        public void add_player (Player? player) {
             if (player != null) {
                 if (this.players.size < 2) {
                     this.players.add (player);

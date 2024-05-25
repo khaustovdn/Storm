@@ -19,14 +19,6 @@
  */
 
 namespace Storm {
-    private const uint16 PORT = 3333;
-    private const string HOST = "127.0.0.1";
-
-    private enum PlayerRole {
-        CREATOR,
-        PLAYER
-    }
-
     [GtkTemplate (ui = "/io/github/Storm/ui/window.ui")]
     public class Window : Adw.ApplicationWindow {
         [GtkChild]
@@ -44,8 +36,6 @@ namespace Storm {
         [GtkChild]
         public unowned Adw.Breakpoint breakpoint;
 
-        public Gee.ArrayList<Room> rooms { get; construct; }
-
         public Window (Gtk.Application app) {
             Object (application: app);
         }
@@ -53,38 +43,52 @@ namespace Storm {
         construct {
             this.player_name_row.changed.connect (this.validate_row);
             this.room_port_row.changed.connect (this.validate_row);
-            this.room_button.clicked.connect (this.client_connect_handle);
+            this.connection_type_row.state_flags_changed.connect (this.validate_row);
+            this.room_button.clicked.connect (this.handle_connection);
             this.room_button.set_sensitive (false);
-            this.rooms = new Gee.ArrayList<Room> ();
+            player = new Player (HOST, PORT);
         }
 
         private void validate_row () {
-            var is_valid_player_name_row = this.player_name_row.validate_row ();
-            var is_valid_room_port_row = this.room_port_row.validate_numeric_row ();
-            var is_active = is_valid_player_name_row && is_valid_room_port_row;
-            this.room_button.set_sensitive (is_active);
+            try {
+                var is_valid_player_name_row = this.player_name_row.validate_row ();
+                var is_valid_room_port_row = this.room_port_row.validate_numeric_row ();
+                var is_active = is_valid_player_name_row && is_valid_room_port_row;
+
+                var document = new GXml.Document ();
+                var element = new GXml.Element ();
+                element.set_attribute ("player_name", this.player_name_row.text);
+                element.set_attribute ("room_port", this.room_port_row.text);
+                element.set_attribute ("connection_type", ((PlayerRole) this.connection_type_row.get_selected ()).to_string ());
+                element.initialize ("connection_validation");
+                document.read_from_string (element.write_string ());
+                player.send (document);
+
+                var msg = player.receive ();
+                this.room_button.set_sensitive (is_active && msg.contains ("true"));
+            } catch (Error e) {
+                warning (@"Connection failed to be validated. $(e.message)");
+            }
         }
 
-        private void client_connect_handle () {
-            var name = this.player_name_row.get_text ();
-            var room_port = this.room_port_row.get_text ();
-            Room? room = null;
+        private void handle_connection () {
+            try {
+                var document = new GXml.Document ();
+                var element = new GXml.Element ();
+                element.set_attribute ("player_name", this.player_name_row.text);
+                element.set_attribute ("room_port", this.room_port_row.text);
+                element.initialize ("room_connection");
+                document.read_from_string (element.write_string ());
+                player.send (document);
 
-            if (this.connection_type_row.get_selected () == PlayerRole.CREATOR) {
-                // Need to check if a room with the specified port does not exist
-                room = new Room (room_port);
-            } else if (this.connection_type_row.get_selected () == PlayerRole.PLAYER) {
-                room = this.rooms.first_match (x => x.port == room_port);
-            }
+                player.name = this.player_name_row.text;
+                player.ships = new Gee.ArrayList<char> ();
 
-            if (room != null) {
-                // Need to create a game class with rooms and all connected players to handle all actions
-                var player = new Player (name, room, HOST, PORT);
-                var room_page = new RoomPage (player);
+                var room_page = new RoomPage ();
                 this.add_breakpoint (room_page.breakpoint);
                 this.navigation_view.push (room_page);
-            } else {
-                warning ("Failed to connect to the room");
+            } catch (Error e) {
+                warning (@"Connection to the room failed. $(e.message)");
             }
         }
     }
