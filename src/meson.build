@@ -2,12 +2,12 @@ storm_sources = (
   [blueprints, resources]
   + files(
     'client/application.vala',
-    'client/cell.vala',
+    'client/board.vala',
     'client/entry-row.vala',
+    'client/field.vala',
     'client/game-page.vala',
     'client/list-row.vala',
     'client/main-window.vala',
-    'client/map.vala',
     'client/player.vala',
     'client/room-page.vala',
     'client/window.vala',

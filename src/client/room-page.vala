@@ -30,27 +30,54 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Box map_box;
 
-        public Adw.Breakpoint breakpoint { get; construct; }
-        public new unowned Map map { get; construct; }
+        public Adw.Breakpoint breakpoint { get; private set; }
+        private unowned Board board { get; set; }
 
         public RoomPage () {
             Object ();
         }
 
         construct {
-            this.map = new Map (player.name, player.ships);
-            this.map_box.prepend (this.map);
-            this.random_button.clicked.connect (this.map.create_ships);
-            this.breakpoint = new Adw.Breakpoint ((Adw.BreakpointCondition.parse ("min-width: 860px")));
+            this.setup_board ();
+            this.setup_breakpoint ();
+            this.connect_signals ();
+        }
+
+        private void setup_board () {
+            this.board = new Board (player.name, player.ships);
+            this.map_box.prepend (this.board);
+        }
+
+        private void setup_breakpoint () {
+            this.breakpoint = new Adw.Breakpoint (Adw.BreakpointCondition.parse ("min-width: 860px"));
+        }
+
+        private void connect_signals () {
+            this.random_button.clicked.connect (this.board.create_ships);
             this.apply_button.clicked.connect (() => {
-                player.send (map.to_document ());
+                handle_apply_button_click ();
+            });
+        }
+
+        private void handle_apply_button_click () {
+            player.send (board.to_document ());
+
+            try {
                 var msg = player.receive ();
                 var document = new GXml.Document ();
                 document.read_from_string (msg);
-                var game_page = new GamePage (new Map (document.first_element_child.get_attribute ("player_name"), new Gee.ArrayList<char> ()));
-                this.breakpoint.add_setter (game_page.map_box, "orientation", Gtk.Orientation.HORIZONTAL);
-                this.navigation_view.push (game_page);
-            });
+                var player_name = document.first_element_child.get_attribute ("player_name");
+                var new_board = new Board (player_name, new Gee.ArrayList<char> ());
+                this.load_game_page (new_board);
+            } catch (Error e) {
+                warning (@"Failed to get the data to start the game. $(e.message)");
+            }
+        }
+
+        private void load_game_page (Board board) {
+            var game_page = new GamePage (board);
+            this.breakpoint.add_setter (game_page.map_box, "orientation", Gtk.Orientation.HORIZONTAL);
+            this.navigation_view.push (game_page);
         }
     }
 }

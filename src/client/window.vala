@@ -43,7 +43,7 @@ namespace Storm {
         construct {
             this.player_name_row.changed.connect (this.validate_row);
             this.room_port_row.changed.connect (this.validate_row);
-            this.connection_type_row.state_flags_changed.connect (this.validate_row);
+            this.connection_type_row.notify["selected"].connect (this.validate_row);
             this.room_button.clicked.connect (this.handle_connection);
             this.room_button.set_sensitive (false);
             player = new Player (HOST, PORT);

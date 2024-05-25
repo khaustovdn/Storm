@@ -3,10 +3,10 @@
     <gresource prefix="/io/github/Storm">
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
         <file>style.css</file>
-        <file preprocess="xml-stripblanks">ui/cell.ui</file>
+        <file preprocess="xml-stripblanks">ui/board.ui</file>
+        <file preprocess="xml-stripblanks">ui/field.ui</file>
         <file preprocess="xml-stripblanks">ui/game-page.ui</file>
         <file preprocess="xml-stripblanks">ui/list-row.ui</file>
-        <file preprocess="xml-stripblanks">ui/map.ui</file>
         <file preprocess="xml-stripblanks">ui/room-page.ui</file>
         <file preprocess="xml-stripblanks">ui/window.ui</file>
         <file compressed="true" alias="welcome.svg">assets/welcome.svg</file>

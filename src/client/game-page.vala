@@ -24,19 +24,19 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Box map_box;
 
-        public Map opponent_map { get; construct; }
+        public Board opponent_map { get; construct; }
 
-        public new unowned Map map { get; construct; }
+        public new unowned Board board { get; construct; }
 
-        public GamePage (Map opponent_map) {
+        public GamePage (Board opponent_map) {
             Object (opponent_map: opponent_map);
         }
 
         construct {
-            this.map = new Map (player.name, player.ships);
-            this.map_box.append (this.map);
+            this.board = new Board (player.name, player.ships);
+            this.map_box.append (this.board);
             this.map_box.append (this.opponent_map);
-            this.map.show_ships ();
+            this.board.show_ships ();
         }
     }
 }

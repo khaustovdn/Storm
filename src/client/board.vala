@@ -1,4 +1,4 @@
-/* map.vala
+/* board.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -21,45 +21,36 @@
 namespace Storm {
     private const uint16 LINE_COUNT = 10;
 
-    [GtkTemplate (ui = "/io/github/Storm/ui/map.ui")]
-    public class Map : Gtk.Frame {
+    [GtkTemplate (ui = "/io/github/Storm/ui/board.ui")]
+    public class Board : Gtk.Frame {
         [GtkChild]
         public unowned Adw.ActionRow name_row;
         [GtkChild]
         public unowned Gtk.Grid grid;
 
-        public string player_name { get; construct; }
         public Gee.ArrayList<char> ships { get; construct; }
 
-        public Map (string player_name, Gee.ArrayList<char> ships) {
-            Object (player_name: player_name, ships: ships);
+        public Board (string player_name, Gee.ArrayList<char> ships) {
+            Object (ships: ships);
+            this.initialize (player_name);
         }
 
-        construct {
+        private void initialize (string player_name) {
             this.name_row.set_subtitle (player_name);
+
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
-                    var cell = new Cell (i, j);
-                    cell.button.clicked.connect (() => {
-                        if (player_name != player.name) {
-                            var document = cell.to_document ();
-                            player.send (document);
-                            var msg = player.receive ();
-                            var atack_document = new GXml.Document ();
-                            atack_document.read_from_string (msg);
-                            if (atack_document.first_element_child.get_attribute ("value") == "true") {
-                                cell.add_css_class ("ship");
-                            } else if (atack_document.first_element_child.get_attribute ("value") == "false") {
-                                cell.add_css_class ("empty");
-                            }
-                        }
-                    });
-                    this.grid.attach (cell, i, j);
-
-                    if (this.ships.size != LINE_COUNT * LINE_COUNT) {
-                        this.ships.add (' ');
-                    }
+                    this.setup_field (i, j, player_name);
                 }
+            }
+        }
+
+        void setup_field (int i, int j, string player_name) {
+            var field = new Field (i, j);
+            field.button.clicked.connect (() => field.handle_click (player_name));
+            this.grid.attach (field, i, j);
+            if (this.ships.size != LINE_COUNT * LINE_COUNT) {
+                this.ships.add (' ');
             }
         }
 
@@ -68,7 +59,7 @@ namespace Storm {
                 var document = new GXml.Document ();
                 var element = new GXml.Element ();
                 element.set_attribute ("ships", (string) this.ships.to_array ());
-                element.initialize ("set_map");
+                element.initialize ("construct_board");
                 document.read_from_string (element.write_string ());
                 return document;
             } catch (Error e) {
@@ -79,47 +70,45 @@ namespace Storm {
 
         bool ship_is_good (int size, bool is_horiz, int row_top, int col_left) {
             if (is_horiz) {
-                for (int i = int.max (0, row_top - 1); i <= int.min (9, row_top + 1); i++) {
-                    for (int j = int.max (0, col_left - 1); j <= int.min (9, col_left + size); j++) {
-                        if (ships[i * 10 + j] == '#')return false;
+                for (int i = int.max (0, row_top - 1); i <= int.min (LINE_COUNT - 1, row_top + 1); i++) {
+                    for (int j = int.max (0, col_left - 1); j <= int.min (LINE_COUNT - 1, col_left + size); j++) {
+                        if (ships[i * LINE_COUNT + j] == '#')return false;
                     }
                 }
-
                 return true;
             } else {
-                for (int i = int.max (0, row_top - 1); i <= int.min (9, row_top + size); i++) {
-                    for (int j = int.max (0, col_left - 1); j <= int.min (9, col_left + 1); j++) {
-                        if (ships[i * 10 + j] == '#')return false;
+                for (int i = int.max (0, row_top - 1); i <= int.min (LINE_COUNT - 1, row_top + size); i++) {
+                    for (int j = int.max (0, col_left - 1); j <= int.min (LINE_COUNT - 1, col_left + 1); j++) {
+                        if (ships[i * LINE_COUNT + j] == '#')return false;
                     }
                 }
-
                 return true;
             }
         }
 
         void set_ship_with_size (int size) {
-            Rand rand = new Rand ();
-            bool is_horiz = (rand.next_int () % 2) == 0;
-            int row_top = 0;
-            int col_left = 0;
+            var rand = new Rand ();
+            var is_horiz = (rand.next_int () % 2) == 0;
+            var row_top = 0;
+            var col_left = 0;
 
             do {
                 do {
-                    row_top = rand.int_range (0, 10);
-                } while (!is_horiz && row_top > 10 - size);
+                    row_top = rand.int_range (0, LINE_COUNT);
+                } while (!is_horiz && row_top > LINE_COUNT - size);
 
                 do {
-                    col_left = rand.int_range (0, 10);
-                } while (is_horiz && col_left > 10 - size);
+                    col_left = rand.int_range (0, LINE_COUNT);
+                } while (is_horiz && col_left > LINE_COUNT - size);
             } while (!ship_is_good (size, is_horiz, row_top, col_left));
 
             if (is_horiz) {
                 for (int j = col_left; j < col_left + size; j++) {
-                    ships[row_top * 10 + j] = '#';
+                    ships[row_top * LINE_COUNT + j] = '#';
                 }
             } else {
                 for (int i = row_top; i < row_top + size; i++) {
-                    ships[i * 10 + col_left] = '#';
+                    ships[i * LINE_COUNT + col_left] = '#';
                 }
             }
         }

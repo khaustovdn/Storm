@@ -74,16 +74,16 @@ namespace Storm {
                     var element = document.first_element_child;
                     switch (element.local_name) {
                     case "connection_validation" :
-                        this.connection_validation_handle (document);
+                        this.handle_connection_validation (document);
                         break;
                     case "room_connection":
-                        this.room_connection_handle (document);
+                        this.handle_room_connection (document);
                         break;
-                    case "set_map":
-                        this.set_map_handle (document);
+                    case "construct_board":
+                        this.handle_construct_map (document);
                         break;
-                    case "atack":
-                        this.atack_handle (document);
+                    case "attack":
+                        this.handle_attack (document);
                         break;
                     }
                     return true;
@@ -97,7 +97,7 @@ namespace Storm {
             return false;
         }
 
-        private void connection_validation_handle (GXml.Document document) {
+        private void handle_connection_validation (GXml.Document document) {
             try {
                 var element = document.first_element_child;
                 string player_name = element.get_attribute ("player_name");
@@ -126,7 +126,7 @@ namespace Storm {
             }
         }
 
-        private void room_connection_handle (GXml.Document document) {
+        private void handle_room_connection (GXml.Document document) {
             var element = document.first_element_child;
             string room_port = element.get_attribute ("room_port");
             this.name = element.get_attribute ("player_name");
@@ -146,7 +146,7 @@ namespace Storm {
             room.add_player (this);
         }
 
-        private void set_map_handle (GXml.Document document) {
+        private void handle_construct_map (GXml.Document document) {
             var element = document.first_element_child;
             this.ships = element.get_attribute ("ships");
             if (room.players.size == 2 && room.players.all_match (x => x.ships != null && x.ships.length > 0 && x.ships.contains ("#"))) {
@@ -155,25 +155,29 @@ namespace Storm {
             }
         }
 
-        private void atack_handle (GXml.Document document) {
-            var element = document.first_element_child;
-            var pos_x = int.parse (element.get_attribute ("position_x"));
-            var pos_y = int.parse (element.get_attribute ("position_y"));
-            var atack_document = new GXml.Document ();
-            var atack_element = new GXml.Element ();
-            if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
-                if (this.room.players.first_match (x => x != this).ships.get (pos_y * 10 + pos_x) == '#') {
-                    atack_element.set_attribute ("value", "true");
+        private void handle_attack (GXml.Document document) {
+            try {
+                var element = document.first_element_child;
+                var pos_x = int.parse (element.get_attribute ("position_x"));
+                var pos_y = int.parse (element.get_attribute ("position_y"));
+                var atack_document = new GXml.Document ();
+                var atack_element = new GXml.Element ();
+                if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
+                    if (this.room.players.first_match (x => x != this).ships.get (pos_y * 10 + pos_x) == '#') {
+                        atack_element.set_attribute ("value", "true");
+                    } else {
+                        atack_element.set_attribute ("value", "false");
+                    }
+                    room.switcher = !room.switcher;
                 } else {
-                    atack_element.set_attribute ("value", "false");
+                    atack_element.set_attribute ("value", "skip");
                 }
-                room.switcher = !room.switcher;
-            } else {
-                atack_element.set_attribute ("value", "skip");
+                atack_element.initialize ("atack");
+                atack_document.read_from_string (atack_element.write_string ());
+                this.send (atack_document);
+            } catch (Error e) {
+                warning (@"Failed to establish a connection for the attack. $(e.message)");
             }
-            atack_element.initialize ("atack");
-            atack_document.read_from_string (atack_element.write_string ());
-            this.send (atack_document);
         }
 
         public bool send (GXml.Document document) {

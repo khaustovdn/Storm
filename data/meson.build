@@ -45,10 +45,10 @@ blueprints = custom_target(
   'blueprints',
   input: files(
     'gtk/help-overlay.blp',
-    'ui/cell.blp',
+    'ui/board.blp',
+    'ui/field.blp',
     'ui/game-page.blp',
     'ui/list-row.blp',
-    'ui/map.blp',
     'ui/room-page.blp',
     'ui/window.blp',
   ),
