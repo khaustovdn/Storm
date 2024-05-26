@@ -82,6 +82,9 @@ namespace Storm {
 
                 player.name = this.player_name_row.text;
                 player.ships = new Gee.ArrayList<char> ();
+                for (int i = 0; i < LINE_COUNT * LINE_COUNT; i++) {
+                    player.ships.add ('0');
+                }
 
                 var room_page = new RoomPage ();
                 this.add_breakpoint (room_page.breakpoint);

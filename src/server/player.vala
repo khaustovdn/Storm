@@ -23,7 +23,7 @@ namespace Storm {
         public string name { get; private set; }
         public Room room { get; private set; }
         public Server server { get; construct; }
-        public string ships { get; private set; }
+        public Gee.ArrayList<char> ships { get; private set; }
         public SocketConnection socket_connection { get; construct; }
         private DataInputStream input_stream { get; set; }
         private DataOutputStream output_stream { get; set; }
@@ -151,8 +151,13 @@ namespace Storm {
 
         private void handle_construct_map (GXml.Document document) {
             var element = document.first_element_child;
-            this.ships = element.get_attribute ("ships");
-            if (room.players.size == 2 && room.players.all_match (x => x.ships != null && x.ships.length > 0 && x.ships.contains ("#"))) {
+            this.ships = new Gee.ArrayList<char> ();
+            var ships_str = element.get_attribute ("ships");
+            for (int i = 0; i < ships_str.length; i++) {
+                this.ships.add (ships_str.get (i));
+            }
+
+            if (room.players.size == 2 && room.players.all_match (x => x.ships != null && x.ships.size > 0 && x.ships.contains ('#'))) {
                 this.send (this.room.players.first_match (x => x != this).to_document ());
                 this.room.players.first_match (x => x != this).send (this.room.players.first_match (x => x == this).to_document ());
             }
@@ -161,23 +166,28 @@ namespace Storm {
         private void handle_attack (GXml.Document document) {
             try {
                 var element = document.first_element_child;
-                var pos_x = int.parse (element.get_attribute ("position_x"));
-                var pos_y = int.parse (element.get_attribute ("position_y"));
-                var atack_document = new GXml.Document ();
-                var atack_element = new GXml.Element ();
+                var position_x = int.parse (element.get_attribute ("position_x"));
+                var position_y = int.parse (element.get_attribute ("position_y"));
+                var attack_document = new GXml.Document ();
+                var attack_element = new GXml.Element ();
                 if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
-                    if (this.room.players.first_match (x => x != this).ships.get (pos_y * 10 + pos_x) == '#') {
-                        atack_element.set_attribute ("value", "true");
-                    } else {
-                        atack_element.set_attribute ("value", "false");
+                    if (this.room.players.first_match (x => x != this).ships.get (position_y * 10 + position_x) == '#') {
+                        attack_element.set_attribute ("value", "true");
+                        this.room.players.first_match (x => x != this).ships.set (position_y * 10 + position_x, '1');
+                    } else if (this.room.players.first_match (x => x != this).ships.get (position_y * 10 + position_x) == '0') {
+                        attack_element.set_attribute ("value", "false");
+                        this.room.players.first_match (x => x != this).ships.set (position_y * 10 + position_x, '2');
+                        room.switcher = !room.switcher;
                     }
-                    room.switcher = !room.switcher;
                 } else {
-                    atack_element.set_attribute ("value", "skip");
+                    attack_element.set_attribute ("value", "skip");
                 }
-                atack_element.initialize ("atack");
-                atack_document.read_from_string (atack_element.write_string ());
-                this.send (atack_document);
+                for (int i = 0; i < 10 * 10; i += 10) {
+                    message ((string) this.room.players.first_match (x => x != this).ships[i: i + 10].to_array ());
+                }
+                attack_element.initialize ("attack");
+                attack_document.read_from_string (attack_element.write_string ());
+                this.send (attack_document);
             } catch (Error e) {
                 warning (@"Failed to establish a connection for the attack. $(e.message)");
             }

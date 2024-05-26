@@ -69,7 +69,7 @@ namespace Storm {
                     var document = new GXml.Document ();
                     document.read_from_string (msg);
                     var player_name = document.first_element_child.get_attribute ("player_name");
-                    var new_board = new Board (player_name, new Gee.ArrayList<char> ());
+                    var new_board = new Board (player_name, null);
                     this.load_game_page (new_board);
                 } catch (Error e) {
                     warning (@"Failed to get the data to start the game. $(e.message)");

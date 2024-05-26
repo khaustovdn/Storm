@@ -28,15 +28,16 @@ namespace Storm {
         [GtkChild]
         public unowned Gtk.Grid grid;
 
-        public Gee.ArrayList<char> ships { get; construct; }
+        public Gee.ArrayList<char> ships { get; set; }
 
-        public Board (string player_name, Gee.ArrayList<char> ships) {
-            Object (ships: ships);
+        public Board (string player_name, Gee.ArrayList<char>? ships) {
+            Object (ships : ships);
             this.initialize (player_name);
         }
 
         private void initialize (string player_name) {
             this.name_row.set_subtitle (player_name);
+            this.construct_ships ();
 
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
@@ -45,13 +46,10 @@ namespace Storm {
             }
         }
 
-        void setup_field (int i, int j, string player_name) {
+        private void setup_field (int i, int j, string player_name) {
             var field = new Field (i, j);
             field.button.clicked.connect (() => field.handle_click (player_name));
             this.grid.attach (field, i, j);
-            if (this.ships.size != LINE_COUNT * LINE_COUNT) {
-                this.ships.add (' ');
-            }
         }
 
         public GXml.Document? to_document () {
@@ -68,25 +66,25 @@ namespace Storm {
             return null;
         }
 
-        bool ship_is_good (int size, bool is_horiz, int row_top, int col_left) {
+        private bool ship_is_good (int size, bool is_horiz, int row_top, int col_left) {
             if (is_horiz) {
                 for (int i = int.max (0, row_top - 1); i <= int.min (LINE_COUNT - 1, row_top + 1); i++) {
                     for (int j = int.max (0, col_left - 1); j <= int.min (LINE_COUNT - 1, col_left + size); j++) {
-                        if (ships[i * LINE_COUNT + j] == '#')return false;
+                        if (this.ships.get (i * LINE_COUNT + j) == '#')return false;
                     }
                 }
                 return true;
             } else {
                 for (int i = int.max (0, row_top - 1); i <= int.min (LINE_COUNT - 1, row_top + size); i++) {
                     for (int j = int.max (0, col_left - 1); j <= int.min (LINE_COUNT - 1, col_left + 1); j++) {
-                        if (ships[i * LINE_COUNT + j] == '#')return false;
+                        if (this.ships.get (i * LINE_COUNT + j) == '#')return false;
                     }
                 }
                 return true;
             }
         }
 
-        void set_ship_with_size (int size) {
+        private void set_ship_with_size (int size) {
             var rand = new Rand ();
             var is_horiz = (rand.next_int () % 2) == 0;
             var row_top = 0;
@@ -104,17 +102,26 @@ namespace Storm {
 
             if (is_horiz) {
                 for (int j = col_left; j < col_left + size; j++) {
-                    this.ships[row_top * LINE_COUNT + j] = '#';
+                    this.ships.set (row_top * LINE_COUNT + j, '#');
                 }
             } else {
                 for (int i = row_top; i < row_top + size; i++) {
-                    this.ships[i * LINE_COUNT + col_left] = '#';
+                    this.ships.set (i * LINE_COUNT + col_left, '#');
+                }
+            }
+        }
+
+        public void construct_ships () {
+            if (this.ships == null || this.ships.size < LINE_COUNT * LINE_COUNT - 1) {
+                this.ships = new Gee.ArrayList<char> ();
+                for (int i = 0; i < LINE_COUNT * LINE_COUNT; i++) {
+                    this.ships.add ('0');
                 }
             }
         }
 
         public void create_ships () {
-            this.ships.foreach (x => { x = ' '; return true; });
+            this.construct_ships ();
 
             for (int i = 0; i < 1; i++) {
                 set_ship_with_size (4);
@@ -135,8 +142,16 @@ namespace Storm {
         public void show_ships () {
             for (int i = 0; i < LINE_COUNT; i++) {
                 for (int j = 0; j < LINE_COUNT; j++) {
-                    if (this.ships.get (i * LINE_COUNT + j) == '#') {
+                    switch (this.ships.get (i * LINE_COUNT + j)) {
+                    case '#' :
                         this.grid.get_child_at (j, i).add_css_class ("ship");
+                        break;
+                    case '1':
+                        ((Field) this.grid.get_child_at (j, i)).image.set_from_resource ("/io/github/Storm/attacked.svg");
+                        break;
+                    case '2':
+                        ((Field) this.grid.get_child_at (j, i)).image.set_from_resource ("/io/github/Storm/missed.svg");
+                        break;
                     }
                 }
             }
