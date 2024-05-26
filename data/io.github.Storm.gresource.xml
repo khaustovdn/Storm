@@ -9,6 +9,8 @@
         <file preprocess="xml-stripblanks">ui/list-row.ui</file>
         <file preprocess="xml-stripblanks">ui/room-page.ui</file>
         <file preprocess="xml-stripblanks">ui/window.ui</file>
+        <file compressed="true" alias="attacked.svg">assets/attacked.svg</file>
+        <file compressed="true" alias="missed.svg">assets/missed.svg</file>
         <file compressed="true" alias="welcome.svg">assets/welcome.svg</file>
     </gresource>
 </gresources>

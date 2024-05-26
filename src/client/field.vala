@@ -23,6 +23,8 @@ namespace Storm {
     public class Field : Gtk.Frame {
         [GtkChild]
         public unowned Gtk.Button button;
+        [GtkChild]
+        public unowned Gtk.Image image;
 
         public int row { get; construct; }
         public int column { get; construct; }
@@ -73,9 +75,9 @@ namespace Storm {
 
         private void attack(string value) {
             if (value == "true") {
-                this.add_css_class("ship");
+                this.image.set_from_resource("/io/github/Storm/attacked.svg");
             } else if (value == "false") {
-                this.add_css_class("empty");
+                this.image.set_from_resource("/io/github/Storm/missed.svg");
             }
         }
     }
