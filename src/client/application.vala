@@ -19,10 +19,10 @@
  */
 
 namespace Storm {
-    private const uint16 PORT = 3333;
     private const string HOST = "127.0.0.1";
-
-    public static Player player;
+    private const uint16 PORT = 3333;
+    private const uint16 LINE_COUNT = 10;
+    public static Game game;
 
     public class Application : Adw.Application {
         public Application () {
@@ -30,6 +30,7 @@ namespace Storm {
         }
 
         construct {
+            Storm.game = new Game (HOST, PORT);
             ActionEntry[] action_entries = {
                 { "about", this.on_about_action },
                 { "preferences", this.on_preferences_action },
@@ -40,12 +41,15 @@ namespace Storm {
         }
 
         public override void activate () {
-            base.activate ();
-            var win = this.active_window;
-            if (win == null) {
-                win = new Storm.Window (this);
+            if (Storm.game.state == Game.State.CONNECTED) {
+                base.activate ();
+                var win = this.active_window;
+                if (win == null) {
+                    win = new Storm.WindowView (this);
+                }
+                win.close_request.connect (Storm.game.client.close_connection);
+                win.present ();
             }
-            win.present ();
         }
 
         private void on_about_action () {

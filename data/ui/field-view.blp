@@ -1,17 +1,23 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $StormField: Frame {
+template $StormFieldView: Frame {
     width-request: 32;
     height-request: 32;
+    can-focus: false;
 
-    Button button {
+    Button {
         hexpand: false;
+        clicked => $attack();
 
         Image image {}
 
         styles [
-            'cell'
+            'reset',
         ]
     }
+
+    styles [
+        'reset',
+    ]
 }

@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $StormGamePage: Adw.NavigationPage {
+template $StormBattleView: Adw.NavigationPage {
     title: _('Game');
     tag: 'game-page';
 
@@ -17,7 +17,7 @@ template $StormGamePage: Adw.NavigationPage {
                 margin-start: 12;
                 maximum-size: 860;
 
-                Box map_box {
+                Box battle-box {
                     orientation: vertical;
                     spacing: 64;
                     valign: center;

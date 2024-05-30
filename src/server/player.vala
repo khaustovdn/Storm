@@ -23,7 +23,7 @@ namespace Storm {
         public string name { get; private set; }
         public Room room { get; private set; }
         public Server server { get; construct; }
-        public Gee.ArrayList<char> ships { get; private set; }
+        public Gee.ArrayList<FieldFlag> board { get; private set; }
         public SocketConnection socket_connection { get; construct; }
         private DataInputStream input_stream { get; set; }
         private DataOutputStream output_stream { get; set; }
@@ -69,23 +69,27 @@ namespace Storm {
         private bool process_message (string? msg) {
             if (msg != null) {
                 try {
-                    var document = new GXml.Document ();
-                    document.read_from_string (msg);
-                    var element = document.first_element_child;
-                    switch (element.local_name) {
-                    case "connection_validation" :
-                        this.handle_connection_validation (document);
+                    var document = new GXml.Document.from_string (msg);
+                    switch (document.first_element_child.local_name) {
+                    case "unique-name" :
+                        this.name_uniqueness_check (document);
                         break;
-                    case "room_connection":
-                        this.handle_room_connection (document);
+                    case "unique-port":
+                        this.port_uniqueness_check (document);
                         break;
-                    case "construct_board":
-                        this.handle_construct_map (document);
+                    case "ship-placement":
+                        this.ship_placement (document);
+                        break;
+                    case "board":
+                        this.place_ships (document);
+                        break;
+                    case "battle":
+                        this.battle (document);
                         break;
                     case "attack":
-                        this.handle_attack (document);
+                        this.attack (document);
                         break;
-                    case "exit":
+                    case "end":
                         this.handle_disconnect (document);
                         break;
                     }
@@ -100,44 +104,54 @@ namespace Storm {
             return false;
         }
 
-        private void handle_connection_validation (GXml.Document document) {
+        public GXml.Document? serialize (string localname, ...) {
             try {
-                var element = document.first_element_child;
-                string player_name = element.get_attribute ("player_name");
-                string room_port = element.get_attribute ("room_port");
-                string connection_type = element.get_attribute ("connection_type");
-
-                if (this.server.players.all_match (p => p.name != player_name)) {
-                    if (connection_type == PlayerRole.CREATOR.to_string () &&
-                        this.server.rooms.all_match (x => x.port != room_port)) {
-                        element.set_attribute ("value", "true");
-                    } else if (connection_type == PlayerRole.PLAYER.to_string () &&
-                               this.server.rooms.any_match (x => x.port == room_port)) {
-                        element.set_attribute ("value", "true");
-                    } else {
-                        element.set_attribute ("value", "false");
+                var list = va_list ();
+                var doc = new GXml.Document ();
+                var root = doc.create_element (localname);
+                doc.append_child (root);
+                while (true) {
+                    var key = list.arg<string> ();
+                    if (key == null) {
+                        break;
                     }
-                } else {
-                    element.set_attribute ("value", "false");
+                    var value = list.arg<string> ();
+                    root.set_attribute (key, value);
                 }
-
-                var result = new GXml.Document ();
-                result.read_from_string (element.write_string ());
-                send (result);
+                return doc;
             } catch (Error e) {
-                warning (@"Connection failed to be validated. $(e.message)");
+                warning (@"Failed to serialize the object. $(e.message)");
+                return null;
             }
         }
 
-        private void handle_room_connection (GXml.Document document) {
-            var element = document.first_element_child;
-            string room_port = element.get_attribute ("room_port");
-            this.name = element.get_attribute ("player_name");
+        private void name_uniqueness_check (GXml.Document document) {
+            var name = document.first_element_child.get_attribute ("name");
+            var is_unique = this.server.players.all_match (x => x.name != name).to_string ();
+            this.send (this.serialize (document.first_element_child.local_name, "is-unique", is_unique));
+        }
 
-            if (this.server.rooms.any_match (x => x.port == room_port)) {
-                room = this.server.rooms.first_match (x => x.port == room_port);
+        private void port_uniqueness_check (GXml.Document document) {
+            string? port = document.first_element_child.get_attribute ("port");
+            string? type = document.first_element_child.get_attribute ("type");
+
+            bool is_unique = ((this.server.rooms.all_match (room => room.port != port) &&
+                               type == ConnectionFlag.CREATE.to_string ())) ||
+                (this.server.rooms.any_match (room => room.port == port) &&
+                 this.server.rooms.first_match (room => room.port == port).players.size < 2 &&
+                 type == ConnectionFlag.JOIN.to_string ());
+
+            this.send (this.serialize (document.first_element_child.local_name, "is-unique", is_unique.to_string ()));
+        }
+
+        private void ship_placement (GXml.Document document) {
+            var port = document.first_element_child.get_attribute ("port");
+            this.name = document.first_element_child.get_attribute ("name");
+
+            if (this.server.rooms.any_match (x => x.port == port)) {
+                room = this.server.rooms.first_match (x => x.port == port);
             } else {
-                room = new Room (room_port);
+                room = new Room (port);
                 this.server.rooms.add (room);
             }
 
@@ -149,47 +163,40 @@ namespace Storm {
             room.add_player (this);
         }
 
-        private void handle_construct_map (GXml.Document document) {
-            var element = document.first_element_child;
-            this.ships = new Gee.ArrayList<char> ();
-            var ships_str = element.get_attribute ("ships");
+        private void place_ships (GXml.Document document) {
+            this.board = new Gee.ArrayList<FieldFlag> ();
+            var ships_str = document.first_element_child.get_attribute ("list");
             for (int i = 0; i < ships_str.length; i++) {
-                this.ships.add (ships_str.get (i));
-            }
-
-            if (room.players.size == 2 && room.players.all_match (x => x.ships != null && x.ships.size > 0 && x.ships.contains ('#'))) {
-                this.send (this.room.players.first_match (x => x != this).to_document ());
-                this.room.players.first_match (x => x != this).send (this.room.players.first_match (x => x == this).to_document ());
+                this.board.add ((FieldFlag) int.parse (ships_str.get (i).to_string ()));
             }
         }
 
-        private void handle_attack (GXml.Document document) {
-            try {
-                var element = document.first_element_child;
-                var position_x = int.parse (element.get_attribute ("position_x"));
-                var position_y = int.parse (element.get_attribute ("position_y"));
-                var attack_document = new GXml.Document ();
-                var attack_element = new GXml.Element ();
-                if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
-                    if (this.room.players.first_match (x => x != this).ships.get (position_y * 10 + position_x) == '#') {
-                        attack_element.set_attribute ("value", "true");
-                        this.room.players.first_match (x => x != this).ships.set (position_y * 10 + position_x, '1');
-                    } else if (this.room.players.first_match (x => x != this).ships.get (position_y * 10 + position_x) == '0') {
-                        attack_element.set_attribute ("value", "false");
-                        this.room.players.first_match (x => x != this).ships.set (position_y * 10 + position_x, '2');
-                        room.switcher = !room.switcher;
+        private void battle (GXml.Document document) {
+            if (room.players.size == 2 && room.players.all_match (x => x.board != null && x.board.size > 0 && x.board.contains (FieldFlag.SHIP))) {
+                this.send (this.serialize ("battle", "name", room.players.first_match (x => x != this).name));
+            }
+        }
+
+        private void attack (GXml.Document document) {
+            var element = document.first_element_child;
+            var position_x = int.parse (element.get_attribute ("column"));
+            var position_y = int.parse (element.get_attribute ("row"));
+            if (((room.switcher == false && this == room.players.first ()) || (room.switcher == true && this == room.players.last ()))) {
+                var is_attacked = false;
+                if (this.room.players.first_match (x => x != this).board.get (position_y * 10 + position_x) == FieldFlag.SHIP) {
+                    is_attacked = true;
+                    this.room.players.first_match (x => x != this).board.set (position_y * 10 + position_x, FieldFlag.BUMP);
+                    if (this.room.players.first_match (x => x != this).board.all_match (x => x != FieldFlag.SHIP)) {
+                        this.send (this.serialize ("win-attack", "value", is_attacked.to_string ()));
                     }
-                } else {
-                    attack_element.set_attribute ("value", "skip");
+                } else if (this.room.players.first_match (x => x != this).board.get (position_y * 10 + position_x) == FieldFlag.WATER) {
+                    this.room.players.first_match (x => x != this).board.set (position_y * 10 + position_x, FieldFlag.BUI);
+                    is_attacked = false;
+                    room.switcher = !room.switcher;
                 }
-                for (int i = 0; i < 10 * 10; i += 10) {
-                    message ((string) this.room.players.first_match (x => x != this).ships[i: i + 10].to_array ());
-                }
-                attack_element.initialize ("attack");
-                attack_document.read_from_string (attack_element.write_string ());
-                this.send (attack_document);
-            } catch (Error e) {
-                warning (@"Failed to establish a connection for the attack. $(e.message)");
+                this.send (this.serialize ("attack", "value", is_attacked.to_string ()));
+            } else {
+                this.send (this.serialize ("attack"));
             }
         }
 

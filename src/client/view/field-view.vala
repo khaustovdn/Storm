@@ -1,4 +1,4 @@
-/* game-page.vala
+/* field.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,24 +19,26 @@
  */
 
 namespace Storm {
-    [GtkTemplate (ui = "/io/github/Storm/ui/game-page.ui")]
-    public class GamePage : Adw.NavigationPage {
-        [GtkChild]
-        public unowned Gtk.Box map_box;
+    [GtkTemplate(ui = "/io/github/Storm/ui/field-view.ui")]
+    public class FieldView : Gtk.Frame {
+        [GtkChild(name = "image")]
+        public unowned Gtk.Image image;
 
-        public Board opponent_map { get; construct; }
+        public FieldViewModel view_model { get; construct; }
+        public int row { get; construct; }
+        public int column { get; construct; }
 
-        public new unowned Board board { get; construct; }
-
-        public GamePage (Board opponent_map) {
-            Object (opponent_map: opponent_map);
+        public FieldView(int row, int column) {
+            Object(row: row, column: column);
         }
 
         construct {
-            this.board = new Board (player.name, player.ships);
-            this.map_box.append (this.board);
-            this.map_box.append (this.opponent_map);
-            this.board.show_ships ();
+            this.view_model = new FieldViewModel();
+        }
+
+        [GtkCallback(name = "attack")]
+        private void attack() {
+            this.view_model.attack(this.image, this.row, this.column);
         }
     }
 }

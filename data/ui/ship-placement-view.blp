@@ -1,0 +1,52 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $StormShipPlacementView: Adw.NavigationPage {
+    title: _('Ship Placement');
+    tag: 'ship-placement';
+
+    Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+            show-end-title-buttons: false;
+
+            [end]
+            Button start-button {
+                label: _('Ready');
+                sensitive: false;
+                clicked => $show-battle-view();
+
+                styles [
+                    "suggested-action",
+                ]
+            }
+        }
+
+        content: ScrolledWindow {
+            Adw.Clamp {
+                margin-bottom: 24;
+                margin-end: 12;
+                margin-top: 24;
+                margin-start: 12;
+                maximum-size: 860;
+
+                Box board-box {
+                    orientation: vertical;
+                    spacing: 18;
+                    halign: center;
+                    valign: center;
+                    can-focus: false;
+
+                    Button {
+                        label: _('Random Board');
+                        clicked => $place-ships();
+
+                        styles [
+                            "pill",
+                        ]
+                    }
+                }
+            }
+        };
+    }
+}

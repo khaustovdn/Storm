@@ -1,0 +1,123 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $StormMainMenuView: Adw.NavigationPage {
+    title: _('Menu');
+    tag: 'menu-page';
+
+    Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+            [end]
+            MenuButton {
+                icon-name: 'open-menu-symbolic';
+                menu-model: primary-menu;
+            }
+
+            title-widget: Adw.WindowTitle {
+                title: _('Storm');
+            };
+        }
+
+        content: ScrolledWindow {
+            Adw.Clamp {
+                margin-bottom: 24;
+                margin-end: 12;
+                margin-top: 24;
+                margin-start: 12;
+                maximum-size: 860;
+
+                Box {
+                    orientation: vertical;
+                    spacing: 18;
+
+                    Box illustration {
+                        orientation: vertical;
+
+                        Picture {
+                            file: 'resource://io/github/Storm/welcome.svg';
+                            margin-bottom: 24;
+                        }
+
+                        Label {
+                            label: _('Battleship');
+
+                            styles [
+                                "title-1",
+                            ]
+                        }
+                    }
+
+                    ListBox {
+                        selection-mode: none;
+
+                        Adw.EntryRow name-row {
+                            title: _('Player Name');
+                            changed => $is-valid-input();
+                        }
+
+                        Adw.EntryRow port-row {
+                            title: _('Room Port');
+                            changed => $is-valid-input();
+                        }
+
+                        Adw.ComboRow type-row {
+                            title: _('Connection Type');
+
+                            model: StringList {
+                                strings [
+                                    _('Create a game'),
+                                    _('Join the game')
+                                ]
+                            };
+                        }
+
+                        styles [
+                            "boxed-list",
+                        ]
+                    }
+
+                    Button show-ship-placement-button {
+                        label: _('Start Game');
+                        halign: center;
+                        valign: center;
+                        sensitive: false;
+                        clicked => $show-ship-placement-view();
+
+                        styles [
+                            "suggested-action",
+                            "pill",
+                        ]
+                    }
+                }
+            }
+        };
+    }
+}
+
+Adw.Breakpoint breakpoint {
+    condition ("max-height: 480px")
+
+    setters {
+        illustration.visible: false;
+    }
+}
+
+menu primary-menu {
+    section {
+        item {
+            label: _('Preferences');
+            action: 'app.preferences';
+        }
+
+        item {
+            label: _('Keyboard Shortcuts');
+            action: 'win.show-help-overlay';
+        }
+
+        item {
+            label: _('About Storm');
+            action: 'app.about';
+        }
+    }
+}

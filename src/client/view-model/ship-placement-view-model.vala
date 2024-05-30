@@ -1,4 +1,4 @@
-/* player-role.vala
+/* ship-placement-view-model.vala
  *
  * Copyright 2024 khaustovdn
  *
@@ -19,8 +19,24 @@
  */
 
 namespace Storm {
-    public enum PlayerRole {
-        CREATOR,
-        PLAYER
+    public class ShipPlacementViewModel : Object {
+        public INavigationService service { get; construct; }
+        public ShipPlacement model { get; construct; }
+
+        public ShipPlacementViewModel (INavigationService service) {
+            Object (service: service);
+        }
+
+        construct {
+            this.model = new ShipPlacement ();
+        }
+
+        public void place_ships () {
+            Storm.game.player.board.place_ships ();
+        }
+
+        public void show_battle_view () {
+            this.model.show_battle_view (this.service);
+        }
     }
 }
